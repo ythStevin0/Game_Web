@@ -228,6 +228,22 @@ Topologi tingkat tinggi:
 
 Frontend menjadi pusat seluruh experience.
 
+## 6.1 Keputusan Arsitektur
+
+Proyek ini menggunakan **modular frontend monolith**: satu aplikasi React yang dibangun dan dideploy sebagai satu unit pada static hosting. Ini bukan microservices karena versi kompetisi tidak membutuhkan backend, database, akun, CMS, atau komunikasi antar-service.
+
+Kode dipisahkan berdasarkan tanggung jawab agar dapat dikembangkan relatif independen tanpa kehilangan kesederhanaan deployment:
+
+- `app/`: bootstrap aplikasi, provider, route, dan batas lazy loading;
+- `scenes/`: world Three.js/R3F per lokasi;
+- `systems/`: loading, interaction, dialogue, camera, audio, dan transition;
+- `features/`: halaman/fitur produk seperti character, gameplay, news, dan download;
+- `components/`: UI reusable yang tidak mengetahui detail Three.js;
+- `data/`: konten statis dan definisi lore;
+- `assets/`: aset bersama yang diimpor oleh aplikasi.
+
+Dependency rule: scene boleh memakai system dan data; feature boleh memakai component dan data; component UI tidak boleh mengimpor atau mengendalikan scene Three.js secara langsung.
+
 ```text
 Frontend
 │
@@ -626,6 +642,8 @@ Secara teknis, transition dapat menggunakan:
 - camera animation;
 - audio transition.
 
+Implementasi awal memakai `@react-three/postprocessing` untuk `Noise`, `Glitch`, `ChromaticAberration`, dan `Bloom`. Shader GLSL custom hanya dibuat setelah efek library terbukti tidak cukup untuk kebutuhan visual yang telah disetujui.
+
 ---
 
 # 14. Audio Architecture
@@ -736,7 +754,7 @@ discoveredObjects = [
 currentDialogue = null
 ```
 
-Untuk prototype kecil, state dapat dikelola menggunakan React state/context. Jika kompleksitas meningkat, state management terpisah dapat digunakan.
+React `useState` tetap digunakan untuk state lokal yang pendek umur, misalnya status hover atau form. Untuk state lintas modul, proyek memilih **Zustand** sejak Sprint 1 agar scene, audio, dialogue, discovery, dan mindscape tidak memicu re-render UI yang tidak terkait. Store harus diekspor melalui selector kecil, bukan satu object state besar.
 
 ---
 
@@ -773,6 +791,8 @@ BROWSER
 - gunakan lazy loading untuk scene yang berat;
 - preload hanya asset yang diperlukan untuk opening;
 - gunakan compression untuk audio dan image.
+
+Untuk React, scene berat dimuat melalui `React.lazy()`/dynamic import dan dibungkus `Suspense`. Model GLTF/GLB dimuat dengan `useGLTF` dari Drei; loading screen memakai progress asset yang nyata, bukan timer semata. `useFrame` hanya dipakai untuk update yang harus berjalan tiap frame.
 
 ---
 
@@ -837,6 +857,8 @@ FRUSTUM / DISTANCE CHECK
 RENDER ONLY WHAT IS NEEDED
 ```
 
+Pengukuran dilakukan pada build produksi: ukuran chunk, waktu loading, FPS saat interaksi utama, dan audit Lighthouse/PageSpeed. Code splitting diterapkan sebelum scene berat tersedia, bukan menunggu bundle menjadi masalah.
+
 ---
 
 # 20. Responsive Strategy
@@ -878,6 +900,8 @@ WEBGL NOT SUPPORTED
 2D / STATIC FALLBACK
 ```
 
+Sebelum membuat `Canvas`, aplikasi memeriksa dukungan WebGL. Preferensi `prefers-reduced-motion` menonaktifkan atau menyederhanakan motion non-esensial. Fallback tetap harus menyajikan informasi, navigasi, dan CTA utama.
+
 ---
 
 # 21. Accessibility
@@ -892,6 +916,8 @@ Minimal:
 - animasi berat dapat dikurangi;
 - informasi penting tidak hanya disampaikan melalui audio;
 - ada fallback untuk perangkat yang tidak mendukung WebGL dengan baik.
+
+Autoplay audio tidak diasumsikan tersedia: ambience dan SFX hanya diinisialisasi setelah gesture pengguna. Untuk audio spasial dalam scene, gunakan positional audio dari Drei bila memang menambah pengalaman; audio UI/ambience sederhana tidak perlu dipaksakan menjadi spasial.
 
 ---
 

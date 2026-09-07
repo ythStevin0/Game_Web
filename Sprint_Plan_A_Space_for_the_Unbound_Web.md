@@ -49,7 +49,7 @@
 ### 🟦 Sprint 0 — Setup & Foundation (3–5 September, 3 hari)
 **Goal:** Fondasi teknis siap, tidak ada waktu terbuang di sprint berikutnya.
 - Inisialisasi repo Git + struktur folder (`react/`, `scenes/`, `systems/`, `data/`, `assets/`) sesuai arsitektur di dokumen topologi bab 7.
-- Setup Vite + React + Three.js/R3F + GSAP.
+- Setup Vite + React + Three.js/R3F + Drei + GSAP + Zustand. Pasang dependency bertahap saat sprint yang memerlukannya agar beban awal tetap kecil.
 - Tentukan **satu area** eksplorasi utama (bukan multi-lokasi) — sesuai prinsip "satu area sangat detail" di dok. topologi bab 47.
 - Audit aset: pastikan semua aset asli/CC0/CC-BY dengan lisensi jelas (D.13, dok. topologi bab 41). **Jangan pakai aset resmi game tanpa izin.**
 - Buat wireframe low-fi untuk 5 halaman wajib.
@@ -115,6 +115,33 @@
 
 ---
 
+### 3.1 Technical Implementation Sequence
+
+Tambahan teknis berikut memperjelas urutan kerja tanpa memperluas scope fitur kompetisi.
+
+**Sprint 1 - R3F, loading, state, dan batas bundle**
+
+- Scene awal memakai React Three Fiber dengan `Canvas`, `useFrame`, `Suspense`, dan `useGLTF`.
+- Drei menyediakan `Environment`, `PerspectiveCamera`, dan helper loader; model hanya dirender setelah siap.
+- Zustand menjadi satu store global dengan selector. React state dipertahankan untuk state lokal komponen.
+- Setiap scene berat dibuat sebagai dynamic import. Ini adalah tindakan preventif; build awal belum menunjukkan warning chunk di atas 500 kB.
+
+**Sprint 2 - scroll dan audio**
+
+- GSAP `ScrollTrigger` digunakan untuk scroll effect yang diperlukan juknis.
+- Audio baru boleh diputar setelah user gesture untuk mematuhi kebijakan autoplay browser. Mute toggle wajib tersedia; positional audio hanya dipakai pada objek/scene yang memang membutuhkan arah suara.
+
+**Sprint 3 - mindscape berisiko tinggi**
+
+- Gunakan `@react-three/postprocessing` lebih dulu untuk noise, glitch, chromatic aberration, dan bloom.
+- Shader custom bukan target awal dan hanya ditambahkan setelah efek library terbukti tidak cukup.
+
+**Sprint 4 - fallback dan pengukuran**
+
+- Periksa WebGL support sebelum memasang Canvas dan baca `prefers-reduced-motion` untuk menyederhanakan motion.
+- Siapkan tampilan 2D/statis yang tetap menyampaikan navigasi dan CTA penting.
+- Audit build produksi dengan Lighthouse/PageSpeed dan dokumentasikan hasil loading, ukuran asset, serta performa interaksi inti.
+
 ## 4. Ritme Harian/Mingguan yang Disarankan
 - **Daily stand-up** (15 menit): apa yang dikerjakan kemarin, hari ini, ada blocker apa.
 - **Sprint review** tiap akhir sprint (demo ke seluruh tim, cek terhadap Definition of Done).
@@ -143,12 +170,13 @@ Bagian ini menjawab kebutuhan praktis dari topologi proyek: apa saja yang perlu 
 | Runtime | Node.js LTS | Samakan versi antar anggota tim |
 | Build tool | Vite | Ringan untuk React/WebGL prototype |
 | UI framework | React | Cocok untuk komponen, state, dan routing |
-| 3D engine | Three.js + React Three Fiber | Untuk world scene, camera, dan efek WebGL |
-| Helper 3D | @react-three/drei | Orbit/camera helper, loaders, environment helper |
+| 3D engine | Three.js + React Three Fiber | Untuk world scene, camera, `useFrame`, dan efek WebGL |
+| Helper 3D | @react-three/drei | `useGLTF`, `Environment`, camera helper, dan loading model |
 | Animasi UI | GSAP | Untuk opening, scroll effect, dan micro-animation |
 | Routing | React Router | Untuk Home, Character, Gameplay, News, Play |
 | Styling | CSS Modules atau plain CSS terstruktur | Hindari framework berat jika belum perlu |
-| State | React Context/Zustand ringan | Cukup untuk scene, audio, dialogue, discovery |
+| State | Zustand | Store global dengan selector untuk scene, audio, dialogue, discovery, dan mindscape; state lokal tetap React |
+| Mindscape effects | @react-three/postprocessing | Efek post-processing siap pakai sebelum shader custom |
 | Deployment | Vercel atau Netlify | Deploy dari awal supaya pipeline tidak mepet |
 | Version control | Git + GitHub | Wajib untuk source code submission |
 
@@ -220,9 +248,13 @@ Jika anggota kurang dari 4, gabungkan peran seperti ini:
 - [ ] Intro/opening cinematic sederhana.
 - [ ] Home/main world route.
 - [ ] Canvas WebGL tampil stabil.
+- [ ] Terapkan `Suspense` + `useGLTF` untuk memuat model/asset scene dan tampilkan loading state yang benar.
+- [ ] Gunakan `useFrame` hanya untuk update per-frame yang benar-benar diperlukan.
+- [ ] Tambahkan `Environment` dan `PerspectiveCamera` dari Drei sesuai kebutuhan scene.
 - [ ] Environment blockout 1 area.
 - [ ] Navbar minimal + menu.
-- [ ] State dasar: scene, audio, dialogue.
+- [ ] Buat Zustand store dasar: scene, audio, dialogue, discovery, dan mindscape.
+- [ ] Pisahkan scene berat dengan `React.lazy()`/dynamic import.
 - [ ] First deploy review.
 
 ### To Do - Sprint 2
@@ -242,6 +274,7 @@ Jika anggota kurang dari 4, gabungkan peran seperti ini:
 - [ ] Mindscape transition.
 - [ ] Visual distortion/post-processing ringan.
 - [ ] Scroll and section animation.
+- [ ] Implementasikan GSAP `ScrollTrigger` dan pastikan efek scroll tetap ringan di mobile.
 - [ ] Audio ambience + mute toggle.
 - [ ] Easter egg ringan jika waktu cukup.
 - [ ] Optimasi asset awal.
@@ -253,6 +286,8 @@ Jika anggota kurang dari 4, gabungkan peran seperti ini:
 - [ ] Test tablet.
 - [ ] Test mobile.
 - [ ] Test Chrome/Edge/Firefox.
+- [ ] Uji WebGL support, fallback 2D/statis, dan `prefers-reduced-motion`.
+- [ ] Jalankan Lighthouse/PageSpeed dan catat hasilnya di dokumentasi.
 - [ ] Run production build.
 - [ ] Fix console error kritis.
 - [ ] Final deploy.
