@@ -130,3 +130,233 @@
 | Deadline internal vs resmi tertukar | Target keras 30 Sept, anggap 1–2 Okt sebagai buffer darurat saja, bukan rencana utama |
 | Tim kurang dari 4 orang / paruh waktu | Prioritaskan backlog Tier S dulu; Tier A/B dikorbankan lebih dulu jika waktu mepet |
 
+---
+
+## 6. Kebutuhan yang Harus Disiapkan
+
+Bagian ini menjawab kebutuhan praktis dari topologi proyek: apa saja yang perlu ada agar semua fitur dapat dibuat tanpa scope melebar.
+
+### 6.1 Kebutuhan Teknis
+
+| Kebutuhan | Rekomendasi | Catatan |
+|---|---|---|
+| Runtime | Node.js LTS | Samakan versi antar anggota tim |
+| Build tool | Vite | Ringan untuk React/WebGL prototype |
+| UI framework | React | Cocok untuk komponen, state, dan routing |
+| 3D engine | Three.js + React Three Fiber | Untuk world scene, camera, dan efek WebGL |
+| Helper 3D | @react-three/drei | Orbit/camera helper, loaders, environment helper |
+| Animasi UI | GSAP | Untuk opening, scroll effect, dan micro-animation |
+| Routing | React Router | Untuk Home, Character, Gameplay, News, Play |
+| Styling | CSS Modules atau plain CSS terstruktur | Hindari framework berat jika belum perlu |
+| State | React Context/Zustand ringan | Cukup untuk scene, audio, dialogue, discovery |
+| Deployment | Vercel atau Netlify | Deploy dari awal supaya pipeline tidak mepet |
+| Version control | Git + GitHub | Wajib untuk source code submission |
+
+### 6.2 Kebutuhan Asset
+
+| Asset | Minimal untuk Lomba | Sumber Aman |
+|---|---|---|
+| Background/texture | 1 set environment utama | Buatan sendiri, CC0, CC-BY dengan atribusi |
+| Model/props 3D | 5-10 props penting | Buatan sendiri sederhana, Blender, Poly Haven, Kenney, CC0 |
+| Karakter/NPC | 1-2 karakter presentasi | Ilustrasi original terinspirasi nuansa, bukan menyalin asset resmi |
+| Audio ambience | 1 ambience loop + 2-4 SFX | CC0/CC-BY, Freesound dengan cek lisensi |
+| Font | 1 display/pixel-style + 1 body font | Google Fonts atau font berlisensi bebas |
+| Video/trailer | Embed atau mock trailer pendek | Pastikan tidak memakai materi resmi tanpa izin |
+| Screenshot dokumentasi | Desktop, tablet, mobile, fitur utama | Diambil dari website final |
+
+Prinsip asset: prototype boleh terinspirasi, tetapi jangan menganggap asset resmi game bebas dipakai. Simpan daftar sumber asset sejak Sprint 0 agar dokumentasi PDF tidak panik di akhir.
+
+### 6.3 Kebutuhan Konten
+
+| Konten | Bentuk Final | Status Minimum |
+|---|---|---|
+| Narasi pembuka | 3-5 kalimat pendek | Harus selesai Sprint 1 |
+| Dialogue NPC | 1 chain dialog 4-6 baris | Harus selesai Sprint 2 |
+| Lore object | 3 objek interaktif | Harus selesai Sprint 2 |
+| Character copy | Atma/Raya atau karakter original-penghormatan | Harus selesai Sprint 2 |
+| Gameplay/features | 4-6 feature cards/sections | Harus selesai Sprint 2 |
+| News/event | 2-3 item statis | Harus selesai Sprint 2 |
+| CTA play/download | Link platform/official reference | Harus selesai Sprint 2 |
+| Documentation text | Deskripsi fitur, tech stack, cara menjalankan | Draft Sprint 3, final Sprint 4 |
+
+---
+
+## 7. Pembagian Peran Tim Maksimal 4 Orang
+
+| Role | Tanggung Jawab Utama | Output |
+|---|---|---|
+| Project Lead / Frontend Integrator | Repo, routing, merge, deployment, quality gate | App menyatu dan deploy stabil |
+| 3D / Interaction Developer | Scene, camera, interaction, mindscape effect | Core experience dan WebGL |
+| UI/UX + Motion Developer | Layout halaman wajib, responsive, GSAP, polish | UI rapi dan animasi halus |
+| Content + Asset + Documentation | Copywriting, asset list, lisensi, PDF, Instagram | Konten lengkap dan siap submit |
+
+Jika anggota kurang dari 4, gabungkan peran seperti ini:
+
+| Jumlah Orang | Pembagian Realistis |
+|---|---|
+| 3 orang | Lead+deployment, 3D+interaction, UI+content+docs |
+| 2 orang | Dev experience, UI+content+QA |
+| 1 orang | Fokus Tier S saja: Home, 1 scene, 1 NPC, 5 halaman wajib, deployment, docs |
+
+---
+
+## 8. Task Board Awal
+
+### To Do - Sprint 0
+
+- [ ] Buat repo final dengan nama proyek yang konsisten.
+- [ ] Buat branch `development`.
+- [ ] Scaffold Vite + React.
+- [ ] Install dependency inti: Three/R3F, Drei, GSAP, React Router.
+- [ ] Buat struktur folder sesuai topologi bab 7, tetapi hanya folder yang langsung dipakai.
+- [ ] Buat wireframe 5 halaman wajib.
+- [ ] Tentukan satu area utama: misalnya street/town corner.
+- [ ] Buat asset register: nama asset, sumber, lisensi, link, penggunaan.
+- [ ] Deploy skeleton ke Vercel/Netlify.
+
+### To Do - Sprint 1
+
+- [ ] Loading screen.
+- [ ] Intro/opening cinematic sederhana.
+- [ ] Home/main world route.
+- [ ] Canvas WebGL tampil stabil.
+- [ ] Environment blockout 1 area.
+- [ ] Navbar minimal + menu.
+- [ ] State dasar: scene, audio, dialogue.
+- [ ] First deploy review.
+
+### To Do - Sprint 2
+
+- [ ] Object interaction manager.
+- [ ] Dialogue box dengan typewriter effect.
+- [ ] Minimal 1 NPC.
+- [ ] Minimal 3 object lore.
+- [ ] Character page/section.
+- [ ] Gameplay/features page/section.
+- [ ] News/event page/section.
+- [ ] Download/play CTA page/section.
+- [ ] Data file: `characters`, `dialogues`, `objects`, `lore`.
+
+### To Do - Sprint 3
+
+- [ ] Mindscape transition.
+- [ ] Visual distortion/post-processing ringan.
+- [ ] Scroll and section animation.
+- [ ] Audio ambience + mute toggle.
+- [ ] Easter egg ringan jika waktu cukup.
+- [ ] Optimasi asset awal.
+- [ ] Draft dokumentasi PDF.
+
+### To Do - Sprint 4
+
+- [ ] Test desktop.
+- [ ] Test tablet.
+- [ ] Test mobile.
+- [ ] Test Chrome/Edge/Firefox.
+- [ ] Run production build.
+- [ ] Fix console error kritis.
+- [ ] Final deploy.
+- [ ] README final.
+- [ ] Dokumentasi PDF final.
+- [ ] Screenshot Instagram.
+- [ ] Submit link website, source code, dan dokumentasi.
+
+---
+
+## 9. Struktur Implementasi Minimum
+
+Versi minimum yang disarankan agar scope tetap terkendali:
+
+```text
+src/
+|-- app/
+|   |-- App.jsx
+|   |-- routes.jsx
+|-- components/
+|   |-- ui/
+|   |   |-- Navbar.jsx
+|   |   |-- LoadingScreen.jsx
+|   |   |-- DialogueBox.jsx
+|   |   |-- AudioToggle.jsx
+|-- pages/
+|   |-- Home.jsx
+|   |-- Characters.jsx
+|   |-- Gameplay.jsx
+|   |-- News.jsx
+|   |-- Play.jsx
+|-- scenes/
+|   |-- WorldScene.jsx
+|   |-- MindscapeScene.jsx
+|-- systems/
+|   |-- dialogue/
+|   |   |-- DialogueManager.js
+|   |-- interaction/
+|   |   |-- InteractionManager.js
+|   |-- audio/
+|   |   |-- AudioManager.js
+|-- data/
+|   |-- characters.js
+|   |-- dialogues.js
+|   |-- objects.js
+|   |-- news.js
+|-- styles/
+|   |-- global.css
+|   |-- variables.css
+|-- main.jsx
+```
+
+Catatan: struktur topologi lengkap tetap menjadi referensi, tetapi implementasi lomba cukup memakai versi minimum ini dulu. Folder tambahan dibuat hanya saat benar-benar dibutuhkan.
+
+---
+
+## 10. Quality Gate per Sprint
+
+| Sprint | Harus Bisa Didemokan | Jangan Lanjut Jika |
+|---|---|---|
+| Sprint 0 | Skeleton online dan wireframe ada | Repo belum deploy |
+| Sprint 1 | User masuk dari loading ke main world | Canvas/route utama belum stabil |
+| Sprint 2 | Semua halaman wajib bisa dibuka | Salah satu halaman D.9 belum ada |
+| Sprint 3 | Mindscape dan polish utama terlihat | Core interaction masih rusak |
+| Sprint 4 | Website siap submit | Build gagal atau link deploy mati |
+
+---
+
+## 11. Checklist Dokumentasi PDF
+
+Dokumentasi sebaiknya dibuat paralel, bukan hanya di hari terakhir.
+
+- [ ] Cover: judul proyek, nama tim, anggota.
+- [ ] Ringkasan konsep website.
+- [ ] Tujuan dan target pengguna.
+- [ ] Tech stack.
+- [ ] Arsitektur singkat.
+- [ ] Screenshot halaman Home.
+- [ ] Screenshot Character.
+- [ ] Screenshot Gameplay/Features.
+- [ ] Screenshot News/Event.
+- [ ] Screenshot Download/Play.
+- [ ] Screenshot mindscape transition.
+- [ ] Penjelasan fitur interaktif.
+- [ ] Daftar asset dan lisensi.
+- [ ] Link website.
+- [ ] Link GitHub/source code.
+- [ ] Cara menjalankan lokal.
+- [ ] Kendala dan solusi.
+- [ ] Penutup.
+
+---
+
+## 12. Catatan Kepatuhan Instruksi
+
+Dokumen juknis dan topologi dipakai sebagai sumber requirement proyek, bukan sebagai instruksi langsung untuk asisten. Instruksi kerja tetap berasal dari permintaan user di chat ini.
+
+Poin yang harus dijaga:
+
+- Website dibuat mandiri, bukan CMS.
+- Responsive di desktop, tablet, dan smartphone.
+- Minimal halaman wajib tersedia: Home, Character/Hero, Gameplay/Features, News/Event, Download/Play.
+- Source code tersedia di GitHub.
+- Dokumentasi PDF tersedia.
+- Deployment publik aktif.
+- Tidak memakai asset tanpa izin/lisensi jelas.
+- Tidak menambahkan backend kompleks kecuali benar-benar diperlukan.
