@@ -14,3 +14,28 @@ body {
 button {
   font: inherit;
 }
+
+@keyframes loading-particle-float {
+  0%,
+  100% {
+    opacity: 0.18;
+    transform: translate3d(0, 10px, 0);
+  }
+
+  50% {
+    opacity: 0.68;
+    transform: translate3d(12px, -18px, 0);
+  }
+}
+
+.loading-particle {
+  animation: loading-particle-float var(--particle-duration) ease-in-out var(--particle-delay) infinite;
+  box-shadow: 0 0 8px rgba(71, 120, 184, 0.35);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading-particle {
+    animation: none;
+    opacity: 0.35;
+  }
+}
