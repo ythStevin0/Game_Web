@@ -1,10 +1,60 @@
-import { useEffect, useLayoutEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { gsap } from 'gsap'
 
+// Assets in public/assets/ (accessed via URL)
 const thumbnailAsset = '/assets/a_space_unbound/foto/thumnail/thumnail2.webp'
 const logoAsset = '/assets/a_space_unbound/foto/logo/logo3.png'
+const atmaPixel = '/assets/a_space_unbound/foto/characters/Atma_pixel_sprite.webp'
 
-export default function IntroScreen({ onEnter }) {
+// Assets in src/ (imported via bundler)
+import nirmalaPixel from '../../a_space_unbound/foto/characters/Nirmala_pixel_transparent.png'
+import bubbleFrame from '../../a_space_unbound/environtment/bubble_text.png'
+import bubbleTalk from '../../a_space_unbound/environtment/bubble_talk.png'
+import grassForeground from '../../a_space_unbound/environtment/rumput.png'
+import { introContent } from '../../data/experience'
+
+
+const MOVEMENT_KEYS = new Set(['arrowleft', 'arrowright', 'a', 'd'])
+const NIRMALA_POSITION = { x: 40, y: 96 }
+
+function DialogBubble({ children, isOpen, label, onToggle, className = '', showPrompt = false, promptImage = null }) {
+  if (!isOpen) {
+    if (showPrompt && promptImage) {
+      return (
+        <button
+          type="button"
+          aria-label={`Buka dialog ${label}`}
+          aria-expanded="false"
+          className={`pointer-events-auto absolute bottom-[70%] left-1/2 z-20 -translate-x-1/2 transition hover:brightness-110 focus-visible:outline-none ${className}`}
+          onClick={onToggle}
+        >
+          <img src={promptImage} alt="" className="h-40 w-auto object-contain [image-rendering:pixelated]" />
+        </button>
+      )
+    }
+    return null
+  }
+
+  return (
+    <button
+      type="button"
+      aria-label={`Tutup dialog ${label}`}
+      aria-expanded="true"
+      className={`pointer-events-auto absolute bottom-[91%] left-1/2 z-20 h-[6.3rem] w-[min(78vw,27rem)] -translate-x-1/2 border-0 bg-transparent p-0 text-stone-100 transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f6d35a] sm:h-[7.4rem] sm:w-120 ${className}`}
+      onClick={onToggle}
+    >
+      <img alt="" className="absolute inset-0 h-full w-full object-fill" src={bubbleFrame} />
+      <span className="absolute left-[13%] right-[13%] top-[25%] flex h-[48%] items-center justify-center text-center text-sm leading-5 drop-shadow-[0_2px_2px_rgba(0,0,0,0.9)] sm:text-base">
+        {children}
+      </span>
+      <kbd className="absolute bottom-[17%] right-[10%] border border-stone-100/60 bg-[#101925]/60 px-1.5 py-0.5 text-[9px] leading-none text-stone-100/90">
+        E
+      </kbd>
+    </button>
+  )
+}
+
+function HeroSection({ onStart }) {
   const rootRef = useRef(null)
   const logoRef = useRef(null)
   const buttonRef = useRef(null)
@@ -12,7 +62,7 @@ export default function IntroScreen({ onEnter }) {
 
   useLayoutEffect(() => {
     const context = gsap.context(() => {
-      // 1. Transisi fade in putih halus dan cepat (mengungkap artwork thumnail2.webp)
+      // 1. Transisi fade in putih halus dan cepat
       gsap.fromTo(
         whiteFadeRef.current,
         { autoAlpha: 1 },
@@ -41,15 +91,15 @@ export default function IntroScreen({ onEnter }) {
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === ' ' || e.key === 'Enter') {
-        onEnter?.()
+        onStart?.()
       }
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [onEnter])
+  }, [onStart])
 
   return (
-    <main
+    <div
       ref={rootRef}
       className="relative flex min-h-screen w-full select-none items-center justify-center overflow-hidden bg-black"
     >
@@ -82,7 +132,7 @@ export default function IntroScreen({ onEnter }) {
         <button
           ref={buttonRef}
           type="button"
-          onClick={() => onEnter?.()}
+          onClick={() => onStart?.()}
           className="group relative mt-10 inline-flex cursor-pointer items-center justify-center border-2 border-amber-300 bg-[#141926]/90 px-7 py-3.5 font-['Press_Start_2P',monospace] text-[11px] uppercase tracking-wider text-amber-300 shadow-[4px_4px_0px_#000000] transition-all duration-150 select-none hover:-translate-y-0.5 hover:border-amber-200 hover:bg-amber-300 hover:text-[#10141d] hover:shadow-[6px_6px_0px_#000000] active:translate-x-1 active:translate-y-1 active:shadow-none sm:px-9 sm:py-4 sm:text-xs"
         >
           <span className="mr-2.5 text-amber-400 transition-colors duration-150 group-hover:text-[#10141d]">
@@ -94,6 +144,214 @@ export default function IntroScreen({ onEnter }) {
           </span>
         </button>
       </div>
-    </main>
+    </div>
   )
+}
+
+function InteractiveIntro({ onEnter }) {
+  const rootRef = useRef(null)
+  const keysRef = useRef(new Set())
+  const [isMoving, setIsMoving] = useState(false)
+  const [position, setPosition] = useState({ x: 69, y: 96, facing: 1 })
+  const [dialogTarget, setDialogTarget] = useState('atma')
+
+  const isNearNirmala = Math.abs(position.x - NIRMALA_POSITION.x) < 13 && Math.abs(position.y - NIRMALA_POSITION.y) < 16
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      const key = event.key.toLowerCase()
+
+      if (key === 'enter') {
+        event.preventDefault()
+        onEnter()
+        return
+      }
+
+      if (key === 'e' && !event.repeat) {
+        event.preventDefault()
+        setDialogTarget((current) => {
+          if (isNearNirmala) return current === 'nirmala' ? null : 'nirmala'
+          return current === 'atma' ? null : 'atma'
+        })
+        return
+      }
+
+      if (!MOVEMENT_KEYS.has(key)) return
+
+      event.preventDefault()
+      keysRef.current.add(key)
+      setIsMoving(true)
+    }
+
+    const handleKeyUp = (event) => {
+      keysRef.current.delete(event.key.toLowerCase())
+      setIsMoving(keysRef.current.size > 0)
+    }
+
+    const clearKeys = () => {
+      keysRef.current.clear()
+      setIsMoving(false)
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    window.addEventListener('keyup', handleKeyUp)
+    window.addEventListener('blur', clearKeys)
+
+    let frameId
+    const moveCharacter = () => {
+      const keys = keysRef.current
+      const left = keys.has('arrowleft') || keys.has('a')
+      const right = keys.has('arrowright') || keys.has('d')
+      const horizontal = Number(right) - Number(left)
+
+      if (horizontal) {
+        setPosition((current) => ({
+          x: Math.min(96, Math.max(4, current.x + horizontal * 0.42)),
+          y: current.y,
+          facing: horizontal === 0 ? current.facing : horizontal,
+        }))
+      }
+
+      frameId = window.requestAnimationFrame(moveCharacter)
+    }
+
+    frameId = window.requestAnimationFrame(moveCharacter)
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+      window.removeEventListener('keyup', handleKeyUp)
+      window.removeEventListener('blur', clearKeys)
+      window.cancelAnimationFrame(frameId)
+    }
+  }, [isNearNirmala, onEnter])
+
+  useLayoutEffect(() => {
+    const context = gsap.context(() => {
+      const media = gsap.matchMedia()
+
+      media.add('(prefers-reduced-motion: no-preference)', () => {
+        const timeline = gsap.timeline({ defaults: { ease: 'power3.out' } })
+
+        timeline
+          .from('[data-hero-world]', { scale: 1.04, autoAlpha: 0, duration: 1.2 })
+          .from('[data-hero-header]', { y: -16, autoAlpha: 0, duration: 0.55 }, '-=0.7')
+          .from('[data-hero-bubble]', { autoAlpha: 0, y: 12, duration: 0.6 }, '-=0.25')
+          .from('[data-hero-character-motion]', { x: 36, autoAlpha: 0, duration: 0.7 }, '-=0.4')
+          .from('[data-hero-rail]', { y: 14, autoAlpha: 0, duration: 0.5 }, '-=0.35')
+      })
+
+      media.add('(prefers-reduced-motion: reduce)', () => {
+        gsap.set('[data-hero-world], [data-hero-header], [data-hero-bubble], [data-hero-character-motion], [data-hero-rail]', {
+          clearProps: 'all',
+        })
+      })
+
+      return () => media.revert()
+    }, rootRef)
+
+    return () => context.revert()
+  }, [])
+
+  const cameraPosition = `${50 + (position.x - 69) * 0.12}% ${80 + (position.y - 96) * 0.06}%`
+
+  return (
+    <div
+      ref={rootRef}
+      aria-label="Interactive town introduction"
+      className="relative h-dvh min-h-0 overflow-hidden bg-[#17212a] text-stone-100"
+      tabIndex="-1"
+    >
+      <div
+        aria-hidden="true"
+        className="absolute inset-[-3%] bg-cover transition-[background-position] duration-150"
+        data-hero-world
+        style={{
+          backgroundImage: "url('/assets/loading/gerbong.png')",
+          backgroundPosition: cameraPosition,
+        }}
+      />
+      <div aria-hidden="true" className="absolute inset-0 bg-[#101925]/38" />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute bottom-0 left-0 w-full z-25 [image-rendering:pixelated]"
+        style={{
+          height: '30vh',
+          backgroundImage: `url(${grassForeground})`,
+          backgroundSize: 'auto 100%',
+          backgroundRepeat: 'repeat-x',
+          backgroundPosition: 'bottom left',
+        }}
+      />
+
+
+
+
+      <section className="absolute inset-0 z-20">
+        <div
+          aria-label="Nirmala. Dekati dengan Atma untuk membuka dialog."
+          className="pointer-events-none absolute z-10"
+          style={{
+            left: `${NIRMALA_POSITION.x}%`,
+            top: `${NIRMALA_POSITION.y}%`,
+            transform: 'translate(-50%, -100%)',
+          }}
+        >
+          <div className="relative hero-npc--idle">
+            <DialogBubble
+              isOpen={dialogTarget === 'nirmala'}
+              label="Nirmala"
+              onToggle={() => setDialogTarget((current) => (current === 'nirmala' ? null : 'nirmala'))}
+              showPrompt={isNearNirmala}
+              promptImage={bubbleTalk}
+            >
+              {introContent.nirmalaGreeting}
+            </DialogBubble>
+            <img
+              alt="Nirmala pixel character"
+              className="h-80 w-auto translate-y-[7%] object-contain [image-rendering:pixelated]"
+              src={nirmalaPixel}
+            />
+          </div>
+        </div>
+
+        <div
+          aria-label="Atma. Use A and D or the left and right arrow keys to move."
+          className="pointer-events-none absolute z-20"
+          data-hero-character
+          style={{
+            left: `${position.x}%`,
+            top: `${position.y}%`,
+            transform: 'translate(-50%, -100%)',
+          }}
+        >
+          <div className={`relative ${isMoving ? 'hero-character--moving' : 'hero-character--idle'}`} data-hero-character-motion>
+            <div aria-live="polite" data-hero-bubble>
+              <DialogBubble
+                isOpen={dialogTarget === 'atma'}
+                label="Atma"
+                onToggle={() => setDialogTarget((current) => (current === 'atma' ? null : 'atma'))}
+              >
+                {introContent.greeting}
+              </DialogBubble>
+            </div>
+            <img
+              alt="Atma pixel character"
+              className="h-85 w-auto object-contain [image-rendering:pixelated]"
+              src={atmaPixel}
+              style={{ transform: `scaleX(${position.facing})` }}
+            />
+          </div>
+        </div>
+      </section>
+
+    </div>
+  )
+}
+
+export default function IntroScreen({ onEnter, showHero = false, onHeroStart }) {
+  if (showHero) {
+    return <HeroSection onStart={onHeroStart} />
+  }
+
+  return <InteractiveIntro onEnter={onEnter} />
 }
