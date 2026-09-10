@@ -1,24 +1,18 @@
 import { useState } from 'react'
-import ExperienceProgress from '../components/ui/ExperienceProgress'
-import IntroScreen from '../features/intro/IntroScreen'
-import TownScene from '../scenes/town/TownScene'
 import LoadingScreen from '../systems/loading/LoadingScreen'
+import StudioSplash from '../features/intro/StudioSplash'
+import ScrollExperience from '../features/experience/ScrollExperience'
 
 export default function App() {
   const [stage, setStage] = useState('loading')
 
   if (stage === 'loading') {
-    return <LoadingScreen onComplete={() => setStage('intro')} />
+    return <LoadingScreen onComplete={() => setStage('splash')} />
   }
 
-  if (stage === 'intro') {
-    return <IntroScreen onEnter={() => setStage('world')} />
+  if (stage === 'splash') {
+    return <StudioSplash onComplete={() => setStage('experience')} />
   }
 
-  return (
-    <>
-      <ExperienceProgress currentStage={stage} />
-      <TownScene onReturnToIntro={() => setStage('intro')} />
-    </>
-  )
+  return <ScrollExperience />
 }
