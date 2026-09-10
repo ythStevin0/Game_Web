@@ -1,24 +1,22 @@
 import { useState } from 'react'
-import ExperienceProgress from '../components/ui/ExperienceProgress'
-import IntroScreen from '../features/intro/IntroScreen'
-import TownScene from '../scenes/town/TownScene'
 import LoadingScreen from '../systems/loading/LoadingScreen'
+import IntroScreen from '../features/intro/IntroScreen'
+import ScrollExperience from '../features/experience/ScrollExperience'
 
 export default function App() {
-  const [stage, setStage] = useState('loading')
+  const [stage, setStage] = useState('hero')
+
+  if (stage === 'hero') {
+    return <IntroScreen showHero onHeroStart={() => setStage('loading')} />
+  }
 
   if (stage === 'loading') {
     return <LoadingScreen onComplete={() => setStage('intro')} />
   }
 
   if (stage === 'intro') {
-    return <IntroScreen onEnter={() => setStage('world')} />
+    return <IntroScreen onEnter={() => setStage('experience')} />
   }
 
-  return (
-    <>
-      <ExperienceProgress currentStage={stage} />
-      <TownScene onReturnToIntro={() => setStage('intro')} />
-    </>
-  )
+  return <ScrollExperience />
 }

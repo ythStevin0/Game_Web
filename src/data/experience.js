@@ -9,6 +9,8 @@ export const introContent = {
   title: 'A quiet town holds more than it shows.',
   description:
     'Enter the first interactive slice: a place to explore, notice, and slowly uncover.',
+  greeting: 'Hai. Selamat datang di kota kecil ini.',
+  nirmalaGreeting: 'Kamu baru di sini? Kota ini punya cara sendiri untuk bercerita.',
 }
 
 export const townContent = {

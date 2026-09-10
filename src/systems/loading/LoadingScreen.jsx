@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { gsap } from 'gsap'
-import gameLogo from '../../a_space_unbound/foto/logo/logo3.png'
+
+const gameLogo = '/assets/a_space_unbound/foto/logo/logo3.png'
 
 const SEGMENTS = Array.from({ length: 14 }, (_, index) => index)
 const PARTICLES = [
@@ -56,18 +57,22 @@ export default function LoadingScreen({ onComplete }) {
   }, [])
 
   useEffect(() => {
-    const timer = window.setTimeout(finishLoading, 15000)
-    return () => window.clearTimeout(timer)
-  }, [finishLoading])
+    const proxy = { val: 0 }
+    const tween = gsap.to(proxy, {
+      val: 1,
+      duration: 3.5,
+      ease: 'power1.inOut',
+      onUpdate: () => {
+        setProgress(proxy.val)
+        setElapsedTime(proxy.val * 3.5)
+      },
+      onComplete: finishLoading
+    })
 
-  const handleTimeUpdate = (event) => {
-    const { currentTime, duration } = event.currentTarget
-
-    setElapsedTime(currentTime)
-    if (duration > 0) {
-      setProgress(Math.min(currentTime / duration, 1))
+    return () => {
+      tween.kill()
     }
-  }
+  }, [finishLoading])
 
   const filledSegments = Math.ceil(progress * SEGMENTS.length)
 
@@ -102,17 +107,15 @@ export default function LoadingScreen({ onComplete }) {
       </header>
 
       <div className="relative z-10 flex min-h-screen flex-col items-center justify-end px-6 pb-[12vh]">
-        <div data-loader className="flex w-full max-w-[31rem] flex-col items-center">
+        <div data-loader className="flex w-full max-w-124 flex-col items-center">
           <div className="mb-2 flex items-end justify-center">
             <video
               aria-hidden="true"
               autoPlay
+              loop
               className="h-32 w-32 object-contain object-center opacity-95 sm:h-36 sm:w-36"
               data-atma-video
               muted
-              onEnded={finishLoading}
-              onError={finishLoading}
-              onTimeUpdate={handleTimeUpdate}
               playsInline
               preload="auto"
             >
@@ -122,7 +125,7 @@ export default function LoadingScreen({ onComplete }) {
 
           <div
             aria-label={`${Math.round(progress * 100)} percent loaded`}
-            className="flex h-[4.1rem] w-full items-center gap-1 rounded-[1.35rem] border-[4px] border-[#fffaf0] bg-[#fffaf0] px-2 py-1 shadow-[0_8px_0_rgba(24,30,50,0.42)]"
+            className="flex h-[4.1rem] w-full items-center gap-1 rounded-[1.35rem] border-4 border-[#fffaf0] bg-[#fffaf0] px-2 py-1 shadow-[0_8px_0_rgba(24,30,50,0.42)]"
             role="progressbar"
             aria-valuemax="100"
             aria-valuemin="0"
@@ -141,7 +144,7 @@ export default function LoadingScreen({ onComplete }) {
           </p>
         </div>
 
-        <div data-loader-meta className="mt-7 flex w-full max-w-[31rem] items-center justify-between text-[10px] tracking-[0.18em] text-[#fffaf0]/75">
+        <div data-loader-meta className="mt-7 flex w-full max-w-124 items-center justify-between text-[10px] tracking-[0.18em] text-[#fffaf0]/75">
             <span>ATMA / RUN CYCLE</span>
           <span>{formatTime(elapsedTime)}</span>
           <span>{Math.round(progress * 100)}%</span>
