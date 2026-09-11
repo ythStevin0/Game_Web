@@ -10,12 +10,15 @@ const atmaPixel = '/assets/a_space_unbound/foto/characters/Atma_pixel_sprite.web
 import nirmalaPixel from '../../a_space_unbound/foto/characters/Nirmala_pixel_transparent.png'
 import bubbleFrame from '../../a_space_unbound/environtment/bubble_text.png'
 import bubbleTalk from '../../a_space_unbound/environtment/bubble_talk.png'
+import bubbleAsking from '../../a_space_unbound/environtment/bubble_asking.png'
+import bubblePeriksa from '../../a_space_unbound/environtment/bubble_periksa.png'
+import bubbleLarangan from '../../a_space_unbound/environtment/bubble_larangan.png'
 import grassForeground from '../../a_space_unbound/environtment/rumput.png'
 import { introContent } from '../../data/experience'
 
 
 const MOVEMENT_KEYS = new Set(['arrowleft', 'arrowright', 'a', 'd'])
-const NIRMALA_POSITION = { x: 40, y: 96 }
+const NIRMALA_POSITION = { x: 30, y: 96 }
 
 function DialogBubble({ children, isOpen, label, onToggle, className = '', showPrompt = false, promptImage = null }) {
   if (!isOpen) {
@@ -28,7 +31,12 @@ function DialogBubble({ children, isOpen, label, onToggle, className = '', showP
           className={`pointer-events-auto absolute bottom-[70%] left-1/2 z-20 -translate-x-1/2 transition hover:brightness-110 focus-visible:outline-none ${className}`}
           onClick={onToggle}
         >
-          <img src={promptImage} alt="" className="h-40 w-auto object-contain [image-rendering:pixelated]" />
+          <img 
+            src={promptImage} 
+            alt="Interaction marker" 
+            className="w-auto object-contain [image-rendering:pixelated]" 
+            style={{ height: '90px' }}
+          />
         </button>
       )
     }
@@ -155,7 +163,8 @@ function InteractiveIntro({ onEnter }) {
   const [position, setPosition] = useState({ x: 69, y: 96, facing: 1 })
   const [dialogTarget, setDialogTarget] = useState('atma')
 
-  const isNearNirmala = Math.abs(position.x - NIRMALA_POSITION.x) < 13 && Math.abs(position.y - NIRMALA_POSITION.y) < 16
+  const isNearNirmala = Math.abs(position.x - NIRMALA_POSITION.x) < 8 && Math.abs(position.y - NIRMALA_POSITION.y) < 16
+  const isNearBoard = Math.abs(position.x - 52) < 5
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -170,6 +179,7 @@ function InteractiveIntro({ onEnter }) {
       if (key === 'e' && !event.repeat) {
         event.preventDefault()
         setDialogTarget((current) => {
+          if (isNearBoard) return current === 'board' ? null : 'board'
           if (isNearNirmala) return current === 'nirmala' ? null : 'nirmala'
           return current === 'atma' ? null : 'atma'
         })
@@ -223,7 +233,7 @@ function InteractiveIntro({ onEnter }) {
       window.removeEventListener('blur', clearKeys)
       window.cancelAnimationFrame(frameId)
     }
-  }, [isNearNirmala, onEnter])
+  }, [isNearNirmala, isNearBoard, onEnter])
 
   useLayoutEffect(() => {
     const context = gsap.context(() => {
@@ -286,7 +296,91 @@ function InteractiveIntro({ onEnter }) {
 
 
 
-      <section className="absolute inset-0 z-20">
+      <section className="pointer-events-none absolute inset-0 z-20">
+        {isNearBoard && dialogTarget !== 'board' && (
+          <div
+            className="pointer-events-auto absolute z-30"
+            style={{
+              left: '51.7%',
+              top: '48%',
+              transform: 'translate(-50%, -50%)',
+            }}
+          >
+            <button
+              type="button"
+              className="pointer-events-auto border-0 bg-transparent p-0 cursor-pointer transition hover:brightness-110"
+              onClick={() => setDialogTarget('board')}
+            >
+              <img 
+                src={bubbleAsking} 
+                alt="Periksa papan" 
+                className="w-auto object-contain [image-rendering:pixelated] drop-shadow-md" 
+                style={{ height: '90px' }}
+              />
+            </button>
+          </div>
+        )}
+        {dialogTarget === 'board' && (
+          <div
+            className="pointer-events-auto absolute z-30"
+            style={{
+              left: `${position.x}%`,
+              top: `${position.y}%`,
+              transform: 'translate(-50%, -100%)',
+            }}
+          >
+            <button
+              type="button"
+              className="pointer-events-auto relative flex flex-col items-center border-0 bg-transparent p-0 cursor-pointer"
+              onClick={() => setDialogTarget(null)}
+              style={{ width: '280px', height: '340px' }}
+            >
+              {/* Label Periksa with bubble_text.png */}
+              <div
+                className="relative flex items-center justify-center [image-rendering:pixelated]"
+                style={{
+                  width: '200px',
+                  height: '60px',
+                  backgroundImage: `url(${bubbleFrame})`,
+                  backgroundSize: '100% 100%',
+                  backgroundRepeat: 'no-repeat',
+                }}
+              >
+                <span className="font-['Press_Start_2P',monospace] text-sm text-stone-100 tracking-wide">
+                  Periksa
+                </span>
+              </div>
+
+              {/* Icons wrapping around Atma */}
+              {/* Pentagon formation around Atma */}
+              {/* Top row: larangan (left) - periksa eye (center, slightly lower) - larangan (right) */}
+              <img src={bubbleLarangan} alt="" className="absolute object-contain [image-rendering:pixelated]" style={{ height: '38px', left: '50%', top: '48px', transform: 'translateX(calc(-50% - 48px))' }} />
+              <img src={bubblePeriksa} alt="" className="absolute object-contain [image-rendering:pixelated]" style={{ height: '35px', left: '50%', top: '56px', transform: 'translateX(-50%)' }} />
+              <img src={bubbleLarangan} alt="" className="absolute object-contain [image-rendering:pixelated]" style={{ height: '38px', left: '50%', top: '48px', transform: 'translateX(calc(-50% + 48px))' }} />
+
+              {/* Bottom row: larangan pair, closer together */}
+              <img src={bubbleLarangan} alt="" className="absolute object-contain [image-rendering:pixelated]" style={{ height: '38px', left: '50%', top: '88px', transform: 'translateX(calc(-50% - 32px))' }} />
+              <img src={bubbleLarangan} alt="" className="absolute object-contain [image-rendering:pixelated]" style={{ height: '38px', left: '50%', top: '88px', transform: 'translateX(calc(-50% + 32px))' }} />
+            </button>
+          </div>
+        )}
+        {isNearNirmala && dialogTarget !== 'nirmala' && (
+          <div
+            className="pointer-events-none absolute z-15"
+            style={{
+              left: `${NIRMALA_POSITION.x}%`,
+              top: '53%',
+              transform: 'translate(-50%, -50%)',
+            }}
+          >
+            <img 
+              src={bubbleAsking} 
+              alt="Interaction marker" 
+              className="w-auto object-contain [image-rendering:pixelated] drop-shadow-md" 
+              style={{ height: '90px' }}
+            />
+          </div>
+        )}
         <div
           aria-label="Nirmala. Dekati dengan Atma untuk membuka dialog."
           className="pointer-events-none absolute z-10"
@@ -301,14 +395,12 @@ function InteractiveIntro({ onEnter }) {
               isOpen={dialogTarget === 'nirmala'}
               label="Nirmala"
               onToggle={() => setDialogTarget((current) => (current === 'nirmala' ? null : 'nirmala'))}
-              showPrompt={isNearNirmala}
-              promptImage={bubbleTalk}
             >
               {introContent.nirmalaGreeting}
             </DialogBubble>
             <img
               alt="Nirmala pixel character"
-              className="h-80 w-auto translate-y-[7%] object-contain [image-rendering:pixelated]"
+              className="h-75 w-auto translate-y-[7%] object-contain [image-rendering:pixelated]"
               src={nirmalaPixel}
             />
           </div>
@@ -336,7 +428,7 @@ function InteractiveIntro({ onEnter }) {
             </div>
             <img
               alt="Atma pixel character"
-              className="h-85 w-auto object-contain [image-rendering:pixelated]"
+              className="h-76 w-auto object-contain [image-rendering:pixelated]"
               src={atmaPixel}
               style={{ transform: `scaleX(${position.facing})` }}
             />
