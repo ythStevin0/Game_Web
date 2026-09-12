@@ -31,7 +31,6 @@ const logoAsset = '/assets/a_space_unbound/foto/logo/logo3.png'
 
 export default function ScrollExperience() {
   const containerRef = useRef(null)
-  const pinWrapperRef = useRef(null)
   const canvasRef = useRef(null)
   const bgImgRef = useRef(null)
   const section2Ref = useRef(null)
@@ -356,7 +355,6 @@ export default function ScrollExperience() {
     >
       {/* Pinned Viewport Window */}
       <div
-        ref={pinWrapperRef}
         className="sticky top-0 h-screen w-full overflow-hidden bg-black"
       >
         {/* ========================================================================= */}

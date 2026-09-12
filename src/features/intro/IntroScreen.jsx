@@ -161,7 +161,7 @@ function InteractiveIntro({ onEnter }) {
   const keysRef = useRef(new Set())
   const [isMoving, setIsMoving] = useState(false)
   const [position, setPosition] = useState({ x: 69, y: 96, facing: 1 })
-  const [dialogTarget, setDialogTarget] = useState('atma')
+  const [dialogTarget, setDialogTarget] = useState(null)
 
   const isNearNirmala = Math.abs(position.x - NIRMALA_POSITION.x) < 8 && Math.abs(position.y - NIRMALA_POSITION.y) < 16
   const isNearBoard = Math.abs(position.x - 52) < 5
@@ -181,7 +181,7 @@ function InteractiveIntro({ onEnter }) {
         setDialogTarget((current) => {
           if (isNearBoard) return current === 'board' ? null : 'board'
           if (isNearNirmala) return current === 'nirmala' ? null : 'nirmala'
-          return current === 'atma' ? null : 'atma'
+          return null
         })
         return
       }
@@ -339,14 +339,14 @@ function InteractiveIntro({ onEnter }) {
               <div
                 className="relative flex items-center justify-center [image-rendering:pixelated]"
                 style={{
-                  width: '200px',
-                  height: '60px',
+                  width: '260px',
+                  height: '75px',
                   backgroundImage: `url(${bubbleFrame})`,
                   backgroundSize: '100% 100%',
                   backgroundRepeat: 'no-repeat',
                 }}
               >
-                <span className="font-['Press_Start_2P',monospace] text-sm text-stone-100 tracking-wide">
+                <span className="font-['Press_Start_2P',monospace] text-base text-stone-100 tracking-wide">
                   Periksa
                 </span>
               </div>
@@ -417,21 +417,22 @@ function InteractiveIntro({ onEnter }) {
           }}
         >
           <div className={`relative ${isMoving ? 'hero-character--moving' : 'hero-character--idle'}`} data-hero-character-motion>
-            <div aria-live="polite" data-hero-bubble>
-              <DialogBubble
-                isOpen={dialogTarget === 'atma'}
-                label="Atma"
-                onToggle={() => setDialogTarget((current) => (current === 'atma' ? null : 'atma'))}
-              >
-                {introContent.greeting}
-              </DialogBubble>
-            </div>
-            <img
-              alt="Atma pixel character"
-              className="h-76 w-auto object-contain [image-rendering:pixelated]"
-              src={atmaPixel}
-              style={{ transform: `scaleX(${position.facing})` }}
-            />
+
+            {isMoving ? (
+              <img
+                alt="Atma running"
+                className="h-76 w-auto object-contain [image-rendering:pixelated]"
+                src="/assets/loading/atma_lari.webp?v=7"
+                style={{ transform: `scaleX(${position.facing})` }}
+              />
+            ) : (
+              <img
+                alt="Atma pixel character"
+                className="h-76 w-auto object-contain [image-rendering:pixelated]"
+                src={atmaPixel}
+                style={{ transform: `scaleX(${position.facing})` }}
+              />
+            )}
           </div>
         </div>
       </section>
