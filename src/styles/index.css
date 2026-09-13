@@ -24,6 +24,7 @@ button {
 }
 
 @keyframes loading-particle-float {
+
   0%,
   100% {
     opacity: 0.18;
@@ -42,6 +43,7 @@ button {
 }
 
 @keyframes hero-character-walk {
+
   0%,
   100% {
     transform: translateY(0) rotate(0deg);
@@ -53,6 +55,7 @@ button {
 }
 
 @keyframes hero-character-idle {
+
   0%,
   100% {
     transform: translateY(0);
