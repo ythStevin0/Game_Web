@@ -12,14 +12,14 @@ gsap.registerPlugin(ScrollTrigger)
  * 3. floatForce: Daya dorong apung partikel ke atas saat terurai dari tengah bawah ke atas (px)
  */
 export const PIXEL_TRANSITION_CONFIG = {
-  // Ukuran piksel kotak (px) - ukuran 15px menghasilkan partikel retro 16-bit yang tajam dan performa 60 FPS
-  pixelSize: 15,
+  // Ukuran piksel kotak (px) - ukuran 14px menghasilkan partikel retro 16-bit yang padat dan tajam
+  pixelSize: 14,
 
-  // Kekuatan sebaran partikel menyamping saat terurai
-  scatterForce: 52,
+  // Kekuatan sebaran partikel menyamping saat terurai (luas & dramatis)
+  scatterForce: 65,
 
-  // Daya dorong apung partikel ke atas (bottom-up drift)
-  floatForce: 48,
+  // Daya dorong apung partikel ke atas (bottom-up drift yang tinggi)
+  floatForce: 68,
 }
 
 const thumbnailAsset = '/assets/a_space_unbound/foto/thumnail/thumnail2.webp'
@@ -30,9 +30,9 @@ export default function ScrollExperience({ onEnterTown }) {
   const containerRef = useRef(null)
   const pinWrapperRef = useRef(null)
   const canvasRef = useRef(null)
+  const heroBgWrapperRef = useRef(null)
   const bgImgRef = useRef(null)
   const aboutSectionRef = useRef(null)
-  const aboutContentRef = useRef(null)
   const heroUiRef = useRef(null)
   const logoRef = useRef(null)
   const buttonRef = useRef(null)
@@ -116,7 +116,7 @@ export default function ScrollExperience({ onEnterTown }) {
     const imgData = offCtx.getImageData(0, 0, cols, rows).data
     const newBlocks = []
 
-    // Koordinat pusat disintegrasi: TENGAH BAWAH (Center Bottom)
+    // Koordinat pusat disintegrasi: TENGAH BAWAH (Center Bottom) merambat naik ke atas dan menyamping
     const cx = (cols - 1) / 2
 
     for (let r = 0; r < rows; r++) {
@@ -135,16 +135,16 @@ export default function ScrollExperience({ onEnterTown }) {
         const dist = Math.sqrt(dx * dx * 0.45 + dy * dy)
         const normDist = dist / 1.204 // Normalisasi nilai jarak maks
 
-        // Variasi dither noise agar tepi patahan berbentuk tekstur piksel organik
+        // Variasi dither noise agar tepi patahan berbentuk tekstur piksel 16-bit organik yang tebal
         const noise = Math.abs(Math.sin(c * 17.13 + r * 37.71) * 43758.5453) % 1
 
         // Threshold disintegrasi: dari tengah bawah merambat naik ke atas dan menyamping
-        const threshold = Math.min(0.75, Math.max(0.02, normDist * 0.65 + (noise - 0.5) * 0.12))
+        const threshold = Math.min(0.85, Math.max(0.01, normDist * 0.70 + (noise - 0.5) * 0.16))
 
-        // Arah sebaran partikel: mengapung NAIK KE ATAS dengan sedikit dorongan keluar dari tengah
+        // Arah sebaran partikel: mengapung NAIK KE ATAS dengan dorongan menyamping
         const hDir = (c - cx) / Math.max(1, cx)
         const angle = -Math.PI / 2 + hDir * 0.45 + (noise - 0.5) * 0.7
-        const speed = 0.8 + noise * 1.5
+        const speed = 0.8 + noise * 1.6
 
         newBlocks.push({
           x: c * pixelSize,
@@ -178,15 +178,15 @@ export default function ScrollExperience({ onEnterTown }) {
     ctx.clearRect(0, 0, canvas.width, canvas.height)
 
     // Saat diam di awal (progress = 0), canvas dibiarkan kosong agar gambar asli HD terlihat 100% tajam & bersih!
-    // Saat di ujung (progress >= 0.85), canvas juga dibiarkan kosong untuk efisiensi performa
-    if (progress <= 0.002 || progress >= 0.85) return
+    // Saat disintegrasi tuntas (progress >= 0.95), canvas juga dibiarkan kosong untuk efisiensi performa
+    if (progress <= 0.002 || progress >= 0.95) return
 
     const { pixelSize, scatterForce, floatForce } = PIXEL_TRANSITION_CONFIG
     const blocks = blocksRef.current
     const len = blocks.length
 
-    // Durasi hidup partikel setelah threshold disintegrasinya terlewati
-    const particleLife = 0.16
+    // Durasi hidup partikel diperpanjang agar tercipta awan partikel retro yang tebal dan dramatis
+    const particleLife = 0.22
     const minActiveThreshold = progress - particleLife
 
     for (let i = 0; i < len; i++) {
@@ -202,14 +202,14 @@ export default function ScrollExperience({ onEnterTown }) {
       const localP = (progress - b.threshold) / particleLife
       if (localP >= 1) continue
 
-      // Partikel terlempar dan mengapung naik ke atas (bottom-up upward drift)
-      const moveY = localP * floatForce * 0.7 + localP * localP * floatForce * 0.5
+      // Partikel terlempar dan mengapung naik ke atas (bottom-up upward drift yang tinggi)
+      const moveY = localP * floatForce * 0.9 + localP * localP * floatForce * 0.6
       const moveX = Math.sin(b.angle) * scatterForce * localP * b.speed
 
       const px = b.x + moveX
       const py = b.y - moveY
-      const size = Math.max(1, pixelSize * (1 - localP * 0.4))
-      const alpha = Math.max(0, 1 - localP)
+      const size = Math.max(2, pixelSize * (1 - localP * 0.3))
+      const alpha = Math.max(0, 1 - localP * localP)
 
       ctx.globalAlpha = alpha
       ctx.fillStyle = b.color
@@ -238,7 +238,7 @@ export default function ScrollExperience({ onEnterTown }) {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
-  // 4. GSAP ScrollTrigger dengan SCRUB & Decoupled RAF untuk transisi anti-macet ke AboutScreen
+  // 4. GSAP ScrollTrigger Master Timeline: Pixel Dissolve (Hero) & Staggered Reveal (About)
   useLayoutEffect(() => {
     const container = containerRef.current
     if (!container) return
@@ -263,83 +263,180 @@ export default function ScrollExperience({ onEnterTown }) {
         { autoAlpha: 1, y: 0, scale: 1, duration: 0.7, delay: 0.5, ease: 'power2.out' }
       )
 
-      // 3. ScrollTrigger Utama: Pin Hero Section secara presisi dengan GSAP native pin
-      ScrollTrigger.create({
-        trigger: pinWrapperRef.current,
-        start: 'top top',
-        end: '+=100%',
-        pin: true,
-        pinSpacing: true,
-        anticipatePin: 1,
-        scrub: 0.25,
-        onUpdate: (self) => {
-          if (isEnteringRef.current) return
+      // 3. Set status awal seluruh elemen Section About agar tersembunyi (siap di-stagger dari bawah)
+      gsap.set(
+        [
+          '.about-anim-header',
+          '.about-anim-eyebrow',
+          '.about-anim-title',
+          '.about-anim-dialogue',
+          '.about-anim-badges',
+          '.about-anim-gallery',
+        ],
+        {
+          autoAlpha: 0,
+          y: 45,
+        }
+      )
 
-          progressRef.current = self.progress
+      // Objek proxy untuk mengendalikan nilai p (0 -> 1) disintegrasi piksel
+      const dissolveProxy = { p: 0 }
 
-          // Decouple scroll event dari DOM styling & Canvas agar thread browser 100% bebas dari lag/macet
-          if (!isRenderingRef.current) {
-            isRenderingRef.current = true
-            requestAnimationFrame(() => {
-              const progress = progressRef.current
-              const dissolveP = Math.min(1, progress / 0.85)
+      // Helper function untuk render visual piksel & mask
+      const updateDissolveVisuals = (progress) => {
+        progressRef.current = progress
 
-              // A. Efek Erased dari Tengah Bawah ke Atas pada gambar latar Section 1
-              if (bgImgRef.current) {
-                if (dissolveP <= 0.005) {
-                  bgImgRef.current.style.maskImage = 'none'
-                  bgImgRef.current.style.webkitMaskImage = 'none'
-                  bgImgRef.current.style.opacity = '1'
-                } else if (dissolveP >= 0.95) {
-                  bgImgRef.current.style.opacity = '0'
-                } else {
-                  bgImgRef.current.style.opacity = '1'
-                  const cutRadius = Math.min(135, dissolveP * 135)
-                  const maskStyle = `radial-gradient(ellipse 85% 75% at 50% 100%, transparent ${cutRadius}%, black ${cutRadius + 10}%)`
-                  bgImgRef.current.style.maskImage = maskStyle
-                  bgImgRef.current.style.webkitMaskImage = maskStyle
-                }
+        if (!isRenderingRef.current) {
+          isRenderingRef.current = true
+          requestAnimationFrame(() => {
+            const p = progressRef.current
+
+            // Mask radial tengah-bawah ke atas pada gambar background HD + vignette
+            if (heroBgWrapperRef.current) {
+              if (p <= 0.005) {
+                heroBgWrapperRef.current.style.maskImage = 'none'
+                heroBgWrapperRef.current.style.webkitMaskImage = 'none'
+                heroBgWrapperRef.current.style.opacity = '1'
+              } else if (p >= 0.95) {
+                heroBgWrapperRef.current.style.opacity = '0'
+              } else {
+                heroBgWrapperRef.current.style.opacity = '1'
+                const cutRadius = Math.min(140, p * 140)
+                const maskStyle = `radial-gradient(ellipse 85% 75% at 50% 100%, transparent ${cutRadius}%, black ${cutRadius + 12}%)`
+                heroBgWrapperRef.current.style.maskImage = maskStyle
+                heroBgWrapperRef.current.style.webkitMaskImage = maskStyle
               }
+            }
 
-              // B. Render partikel piksel di canvas
-              renderCanvas(dissolveP)
+            // Render partikel kanvas pecah
+            renderCanvas(p)
 
-              // C. UI Section 1 memudar halus
-              if (heroUiRef.current) {
-                const uiAlpha = Math.max(0, 1 - dissolveP * 3.0)
-                heroUiRef.current.style.opacity = String(uiAlpha)
-                heroUiRef.current.style.transform = `translateY(${-dissolveP * 35}px)`
-                heroUiRef.current.style.pointerEvents = dissolveP > 0.08 ? 'none' : 'auto'
-              }
+            isRenderingRef.current = false
+          })
+        }
+      }
 
-              isRenderingRef.current = false
-            })
-          }
+      // 4. MASTER GSAP TIMELINE:
+      // Mengintegrasikan Pixel Dissolve Section 1 & Staggered Reveal Section About ke SATU Timeline terpadu
+      // dengan scrub: true agar terikat presisi secara real-time dengan roda / touch scroll pengguna
+      const masterTl = gsap.timeline({
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: 'top top',
+          end: () => `+=${window.innerHeight * 2.0}`,
+          scrub: true,
         },
       })
 
-      // 4. ScrollTrigger untuk Section 2 (About):
-      // Muncul dengan transisi halus melayang dari bawah setelah Section Hero selesai di-scroll
-      if (aboutContentRef.current && aboutSectionRef.current) {
-        gsap.fromTo(
-          aboutContentRef.current,
-          {
-            y: 65,
-            opacity: 0,
+      // === PARALLEL ANIMATION: SECTION 1 PIXEL DISSOLVE & SECTION 2 OVERLAY REVEAL ===
+      // A. UI Hero (Logo & Tombol) memudar cepat di awal scroll
+      masterTl.to(
+        heroUiRef.current,
+        {
+          autoAlpha: 0,
+          y: -30,
+          ease: 'power1.out',
+          duration: 0.25,
+        },
+        0
+      )
+
+      // B. Disintegrasi piksel Section 1 terurai dari tengah bawah ke atas (t: 0 -> 0.95)
+      // Menghapus gambar Layer Atas secara bertahap sehingga Layer Bawah terkuak dari baliknya
+      masterTl.to(
+        dissolveProxy,
+        {
+          p: 1,
+          ease: 'none',
+          duration: 0.95,
+          onUpdate: () => {
+            updateDissolveVisuals(dissolveProxy.p)
           },
+        },
+        0
+      )
+
+      // C. Fade out Layer Atas sepenuhnya saat piksel selesai terurai (t: 0.90 -> 1.05)
+      masterTl.to(
+        pinWrapperRef.current,
+        {
+          autoAlpha: 0,
+          ease: 'power1.out',
+          duration: 0.15,
+        },
+        0.90
+      )
+
+      // === STAGGERED CONTENT ENTRANCE: SECTION ABOUT (t: 0.25 -> 1.85) ===
+      // Elemen-elemen Section About muncul bertahap dari bawah ke atas (slide up + fade in)
+      // secara berurutan mengikuti laju scroll
+      masterTl
+        // 1. Top Bar: Section Badge & Tombol Kembali (t: 0.25 -> 0.50)
+        .to(
+          '.about-anim-header',
           {
+            autoAlpha: 1,
             y: 0,
-            opacity: 1,
+            duration: 0.25,
             ease: 'power2.out',
-            scrollTrigger: {
-              trigger: aboutSectionRef.current,
-              start: 'top 92%',
-              end: 'top 35%',
-              scrub: 0.35,
-            },
-          }
+          },
+          0.25
         )
-      }
+        // 2. Eyebrow Tag 16-Bit Pixel Adventure (t: 0.42 -> 0.67)
+        .to(
+          '.about-anim-eyebrow',
+          {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.25,
+            ease: 'power2.out',
+          },
+          0.42
+        )
+        // 3. Judul Headline "HIGH SCHOOL IS ENDING..." & Stepped Divider (t: 0.60 -> 0.85)
+        .to(
+          '.about-anim-title',
+          {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.25,
+            ease: 'power2.out',
+          },
+          0.60
+        )
+        // 4. Pixel RPG Dialogue Box (Atma, Story, Raya) (t: 0.80 -> 1.15)
+        .to(
+          '.about-anim-dialogue',
+          {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.35,
+            ease: 'power2.out',
+          },
+          0.80
+        )
+        // 5. Retro Badges & Platform Cartridge Logos (t: 1.15 -> 1.50)
+        .to(
+          '.about-anim-badges',
+          {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.35,
+            ease: 'power2.out',
+          },
+          1.15
+        )
+        // 6. Art Gallery Arcade Monitor Frame & Thumbnail Strip (t: 1.45 -> 1.85)
+        .to(
+          '.about-anim-gallery',
+          {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.40,
+            ease: 'power2.out',
+          },
+          1.45
+        )
     }, container)
 
     return () => ctx.revert()
@@ -359,11 +456,11 @@ export default function ScrollExperience({ onEnterTown }) {
       ease: 'power2.inOut',
       onUpdate: () => {
         renderCanvas(animProxy.p)
-        if (bgImgRef.current) {
-          const cutRadius = Math.min(135, animProxy.p * 135)
-          const maskStyle = `radial-gradient(ellipse 85% 75% at 50% 100%, transparent ${cutRadius}%, black ${cutRadius + 10}%)`
-          bgImgRef.current.style.maskImage = maskStyle
-          bgImgRef.current.style.webkitMaskImage = maskStyle
+        if (heroBgWrapperRef.current) {
+          const cutRadius = Math.min(140, animProxy.p * 140)
+          const maskStyle = `radial-gradient(ellipse 85% 75% at 50% 100%, transparent ${cutRadius}%, black ${cutRadius + 12}%)`
+          heroBgWrapperRef.current.style.maskImage = maskStyle
+          heroBgWrapperRef.current.style.webkitMaskImage = maskStyle
         }
         if (heroUiRef.current) {
           heroUiRef.current.style.opacity = String(Math.max(0, 1 - animProxy.p * 3.5))
@@ -408,11 +505,11 @@ export default function ScrollExperience({ onEnterTown }) {
       className="relative w-full bg-white select-none"
     >
       {/* ========================================================================= */}
-      {/* SECTION 1: HERO VIEWPORT (PINNED OLEH GSAP DENGAN PIXEL DISSOLVE)         */}
+      {/* LAYER ATAS (z-index: 2 / z-20 - SECTION HERO: GAMBAR UTAMA + HTML5 CANVAS) */}
       {/* ========================================================================= */}
       <div
         ref={pinWrapperRef}
-        className="relative h-screen w-full overflow-hidden bg-white"
+        className="sticky top-0 h-screen w-full overflow-hidden bg-transparent z-20 pointer-events-none"
       >
         {/* Preview Town saat tombol Enter the Town ditekan */}
         {isEnteringTown && (
@@ -426,21 +523,25 @@ export default function ScrollExperience({ onEnterTown }) {
           </div>
         )}
 
-        {/* SECTION 1 (AWAL): Background Gambar ASLI HD (Tajam) */}
-        <img
-          ref={bgImgRef}
-          alt="A Space for the Unbound Artwork"
-          className="absolute inset-0 z-5 h-full w-full object-cover object-center select-none will-change-[opacity]"
-          src={thumbnailAsset}
-        />
+        {/* SECTION 1: Wrapper Background Gambar ASLI HD + Lapisan Vignette */}
+        <div
+          ref={heroBgWrapperRef}
+          className="absolute inset-0 z-5 select-none will-change-[opacity]"
+        >
+          <img
+            ref={bgImgRef}
+            alt="A Space for the Unbound Artwork"
+            className="h-full w-full object-cover object-center select-none"
+            src={thumbnailAsset}
+          />
+          {/* Lapisan Vignette Halus */}
+          <div className="pointer-events-none absolute inset-0 bg-black/20" />
+        </div>
 
-        {/* Lapisan Vignette Halus */}
-        <div className="pointer-events-none absolute inset-0 z-6 bg-black/20" />
-
-        {/* CANVAS: Efek Pecahan Piksel HANCUR DARI TENGAH BAWAH KE ATAS */}
+        {/* HTML5 CANVAS: Efek Pixel Dissolve berjalan di Layer Atas (z-15) */}
         <canvas
           ref={canvasRef}
-          className="pointer-events-none absolute inset-0 z-10 block h-full w-full will-change-transform"
+          className="pointer-events-none absolute inset-0 z-15 block h-full w-full will-change-transform"
         />
 
         {/* Lapisan Fade In Putih Awal Masuk dari Loading */}
@@ -452,7 +553,7 @@ export default function ScrollExperience({ onEnterTown }) {
         {/* UI SECTION 1: Logo, Tombol Pixelated ENTER THE TOWN, & Hint Scroll */}
         <div
           ref={heroUiRef}
-          className="pointer-events-none absolute inset-0 z-20 flex flex-col items-center justify-center px-6 text-center will-change-[opacity,transform]"
+          className="pointer-events-none absolute inset-0 z-25 flex flex-col items-center justify-center px-6 text-center will-change-[opacity,transform]"
         >
           {/* Logo Tengah */}
           <img
@@ -494,15 +595,13 @@ export default function ScrollExperience({ onEnterTown }) {
       </div>
 
       {/* ========================================================================= */}
-      {/* SECTION 2: ABOUT SECTION (TRANSISI DARI BAWAH SETELAH HERO SELESAI PIN)   */}
+      {/* LAYER BAWAH (z-index: 1 / z-10 - SECTION ABOUT: KONTEN ABOUT TERKUAK)     */}
       {/* ========================================================================= */}
       <div
         ref={aboutSectionRef}
-        className="relative z-20 w-full bg-white"
+        className="relative z-10 w-full bg-white"
       >
-        <div ref={aboutContentRef} className="w-full will-change-[transform,opacity]">
-          <GameDescriptionSection onScrollToTop={handleScrollToTop} />
-        </div>
+        <GameDescriptionSection onScrollToTop={handleScrollToTop} />
       </div>
     </div>
   )
