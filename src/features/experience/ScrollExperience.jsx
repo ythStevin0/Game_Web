@@ -12,14 +12,14 @@ gsap.registerPlugin(ScrollTrigger)
  * 3. floatForce: Daya dorong apung partikel ke atas saat terurai dari tengah bawah ke atas (px)
  */
 export const PIXEL_TRANSITION_CONFIG = {
-  // Ukuran piksel kotak (px)
-  pixelSize: 12,
+  // Ukuran piksel kotak (px) - ukuran 15px menghasilkan partikel retro 16-bit yang tajam dan performa 60 FPS
+  pixelSize: 15,
 
   // Kekuatan sebaran partikel menyamping saat terurai
-  scatterForce: 60,
+  scatterForce: 52,
 
   // Daya dorong apung partikel ke atas (bottom-up drift)
-  floatForce: 55,
+  floatForce: 48,
 }
 
 const thumbnailAsset = '/assets/a_space_unbound/foto/thumnail/thumnail2.webp'
@@ -31,7 +31,7 @@ export default function ScrollExperience({ onEnterTown }) {
   const pinWrapperRef = useRef(null)
   const canvasRef = useRef(null)
   const bgImgRef = useRef(null)
-  const aboutWrapperRef = useRef(null)
+  const aboutSectionRef = useRef(null)
   const aboutContentRef = useRef(null)
   const heroUiRef = useRef(null)
   const logoRef = useRef(null)
@@ -157,6 +157,8 @@ export default function ScrollExperience({ onEnterTown }) {
       }
     }
 
+    // Sort blocks by threshold agar loop renderCanvas dapat dipotong cepat (early break) untuk 60 FPS
+    newBlocks.sort((a, b) => a.threshold - b.threshold)
     blocksRef.current = newBlocks
 
     if (canvasRef.current) {
@@ -184,29 +186,34 @@ export default function ScrollExperience({ onEnterTown }) {
     const len = blocks.length
 
     // Durasi hidup partikel setelah threshold disintegrasinya terlewati
-    const particleLife = 0.20
+    const particleLife = 0.16
+    const minActiveThreshold = progress - particleLife
 
     for (let i = 0; i < len; i++) {
       const b = blocks[i]
 
-      // HANYA gambar partikel yang sudah mulai terurai dari tengah bawah
-      if (progress > b.threshold) {
-        const localP = (progress - b.threshold) / particleLife
-        if (localP >= 1) continue // Partikel sudah sepenuhnya terhapus / menghilang
+      // Karena blocks sudah di-sort by threshold:
+      // Jika threshold partikel > progress saat ini, sisa partikel berikutnya belum terurai!
+      if (b.threshold > progress) break
 
-        // Partikel terlempar dan mengapung naik ke atas (bottom-up upward drift)
-        const moveY = localP * floatForce * 0.7 + localP * localP * floatForce * 0.5
-        const moveX = Math.sin(b.angle) * scatterForce * localP * b.speed
+      // Jika threshold partikel sudah terlalu jauh di masa lalu (melebihi umur hidup partikel), lewati!
+      if (b.threshold < minActiveThreshold) continue
 
-        const px = b.x + moveX
-        const py = b.y - moveY
-        const size = Math.max(1, pixelSize * (1 - localP * 0.4))
-        const alpha = Math.max(0, 1 - localP)
+      const localP = (progress - b.threshold) / particleLife
+      if (localP >= 1) continue
 
-        ctx.globalAlpha = alpha
-        ctx.fillStyle = b.color
-        ctx.fillRect(px, py, size, size)
-      }
+      // Partikel terlempar dan mengapung naik ke atas (bottom-up upward drift)
+      const moveY = localP * floatForce * 0.7 + localP * localP * floatForce * 0.5
+      const moveX = Math.sin(b.angle) * scatterForce * localP * b.speed
+
+      const px = b.x + moveX
+      const py = b.y - moveY
+      const size = Math.max(1, pixelSize * (1 - localP * 0.4))
+      const alpha = Math.max(0, 1 - localP)
+
+      ctx.globalAlpha = alpha
+      ctx.fillStyle = b.color
+      ctx.fillRect(px, py, size, size)
     }
     ctx.globalAlpha = 1.0
   }
@@ -231,7 +238,7 @@ export default function ScrollExperience({ onEnterTown }) {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
-  // 4. GSAP ScrollTrigger dengan SCRUB: TRUE untuk transisi ke AboutScreen
+  // 4. GSAP ScrollTrigger dengan SCRUB & Decoupled RAF untuk transisi anti-macet ke AboutScreen
   useLayoutEffect(() => {
     const container = containerRef.current
     if (!container) return
@@ -256,88 +263,83 @@ export default function ScrollExperience({ onEnterTown }) {
         { autoAlpha: 1, y: 0, scale: 1, duration: 0.7, delay: 0.5, ease: 'power2.out' }
       )
 
-      // 3. ScrollTrigger Utama: Scrub dissolve dari tengah bawah ke atas,
-      // mengungkapkan AboutScreen di tempat (in-place) tanpa terpotong!
-      const DISSOLVE_END = 0.75
-
+      // 3. ScrollTrigger Utama: Pin Hero Section secara presisi dengan GSAP native pin
       ScrollTrigger.create({
-        trigger: container,
+        trigger: pinWrapperRef.current,
         start: 'top top',
-        end: 'bottom bottom',
-        scrub: true,
+        end: '+=100%',
+        pin: true,
+        pinSpacing: true,
+        anticipatePin: 1,
+        scrub: 0.25,
         onUpdate: (self) => {
-          // Jangan timpa jika sedang dalam animasi tombol Enter the Town
           if (isEnteringRef.current) return
 
-          const progress = self.progress
-          progressRef.current = progress
+          progressRef.current = self.progress
 
-          // Fase 1: Dissolve progress (0 -> 1)
-          const dissolveP = Math.min(1, progress / DISSOLVE_END)
-
-          // A. Efek Erased dari Tengah Bawah ke Atas pada gambar latar Section 1
-          if (bgImgRef.current) {
-            if (dissolveP <= 0.005) {
-              bgImgRef.current.style.maskImage = 'none'
-              bgImgRef.current.style.webkitMaskImage = 'none'
-              bgImgRef.current.style.opacity = '1'
-            } else if (dissolveP >= 0.95) {
-              bgImgRef.current.style.opacity = '0'
-            } else {
-              bgImgRef.current.style.opacity = '1'
-              const cutRadius = Math.min(135, dissolveP * 135)
-              const maskStyle = `radial-gradient(ellipse 85% 75% at 50% 100%, transparent ${cutRadius}%, black ${cutRadius + 10}%)`
-              bgImgRef.current.style.maskImage = maskStyle
-              bgImgRef.current.style.webkitMaskImage = maskStyle
-            }
-          }
-
-          // B. Render canvas pecahan partikel piksel
+          // Decouple scroll event dari DOM styling & Canvas agar thread browser 100% bebas dari lag/macet
           if (!isRenderingRef.current) {
             isRenderingRef.current = true
             requestAnimationFrame(() => {
+              const progress = progressRef.current
+              const dissolveP = Math.min(1, progress / 0.85)
+
+              // A. Efek Erased dari Tengah Bawah ke Atas pada gambar latar Section 1
+              if (bgImgRef.current) {
+                if (dissolveP <= 0.005) {
+                  bgImgRef.current.style.maskImage = 'none'
+                  bgImgRef.current.style.webkitMaskImage = 'none'
+                  bgImgRef.current.style.opacity = '1'
+                } else if (dissolveP >= 0.95) {
+                  bgImgRef.current.style.opacity = '0'
+                } else {
+                  bgImgRef.current.style.opacity = '1'
+                  const cutRadius = Math.min(135, dissolveP * 135)
+                  const maskStyle = `radial-gradient(ellipse 85% 75% at 50% 100%, transparent ${cutRadius}%, black ${cutRadius + 10}%)`
+                  bgImgRef.current.style.maskImage = maskStyle
+                  bgImgRef.current.style.webkitMaskImage = maskStyle
+                }
+              }
+
+              // B. Render partikel piksel di canvas
               renderCanvas(dissolveP)
+
+              // C. UI Section 1 memudar halus
+              if (heroUiRef.current) {
+                const uiAlpha = Math.max(0, 1 - dissolveP * 3.0)
+                heroUiRef.current.style.opacity = String(uiAlpha)
+                heroUiRef.current.style.transform = `translateY(${-dissolveP * 35}px)`
+                heroUiRef.current.style.pointerEvents = dissolveP > 0.08 ? 'none' : 'auto'
+              }
+
               isRenderingRef.current = false
             })
           }
-
-          // C. Seluruh UI Section 1 (Logo, Tombol, Hint Scroll) memudar halus saat scroll
-          if (heroUiRef.current) {
-            const uiAlpha = Math.max(0, 1 - dissolveP * 3.2)
-            gsap.set(heroUiRef.current, {
-              autoAlpha: uiAlpha,
-              y: -dissolveP * 35,
-              pointerEvents: dissolveP > 0.08 ? 'none' : 'auto',
-            })
-          }
-
-          // D. Section 2 (AboutScreen) muncul di tempat (in-place) dari balik pecahan piksel!
-          const aboutAlpha = Math.min(1, Math.max(0, (dissolveP - 0.04) / 0.65))
-
-          if (aboutWrapperRef.current) {
-            gsap.set(aboutWrapperRef.current, {
-              autoAlpha: aboutAlpha,
-              pointerEvents: dissolveP >= 0.75 ? 'auto' : 'none',
-            })
-          }
-
-          // E. Fase 2: Translasi isi konten AboutScreen jika tingginya melebihi layar
-          if (aboutContentRef.current) {
-            const contentH = aboutContentRef.current.scrollHeight
-            const windowH = window.innerHeight
-            const maxScroll = Math.max(0, contentH - windowH)
-
-            if (maxScroll > 0 && progress > DISSOLVE_END) {
-              const scrollRatio = (progress - DISSOLVE_END) / (1 - DISSOLVE_END)
-              gsap.set(aboutContentRef.current, {
-                y: -maxScroll * scrollRatio,
-              })
-            } else {
-              gsap.set(aboutContentRef.current, { y: 0 })
-            }
-          }
         },
       })
+
+      // 4. ScrollTrigger untuk Section 2 (About):
+      // Muncul dengan transisi halus melayang dari bawah setelah Section Hero selesai di-scroll
+      if (aboutContentRef.current && aboutSectionRef.current) {
+        gsap.fromTo(
+          aboutContentRef.current,
+          {
+            y: 65,
+            opacity: 0,
+          },
+          {
+            y: 0,
+            opacity: 1,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: aboutSectionRef.current,
+              start: 'top 92%',
+              end: 'top 35%',
+              scrub: 0.35,
+            },
+          }
+        )
+      }
     }, container)
 
     return () => ctx.revert()
@@ -364,7 +366,7 @@ export default function ScrollExperience({ onEnterTown }) {
           bgImgRef.current.style.webkitMaskImage = maskStyle
         }
         if (heroUiRef.current) {
-          gsap.set(heroUiRef.current, { autoAlpha: Math.max(0, 1 - animProxy.p * 3.5) })
+          heroUiRef.current.style.opacity = String(Math.max(0, 1 - animProxy.p * 3.5))
         }
       },
       onComplete: () => {
@@ -375,14 +377,17 @@ export default function ScrollExperience({ onEnterTown }) {
 
   // 6. Aksi Klik "KEMBALI KE HALAMAN AWAL" dari AboutScreen
   const handleScrollToTop = useCallback(() => {
-    const scrollObj = { y: window.scrollY }
-    gsap.to(scrollObj, {
-      y: 0,
-      duration: 1.2,
-      ease: 'power2.inOut',
-      onUpdate: () => {
-        window.scrollTo(0, scrollObj.y)
-      },
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    })
+  }, [])
+
+  // 7. Aksi Klik "SCROLL DOWN FOR ABOUT GAME" untuk scroll halus ke Section About
+  const handleScrollDownClick = useCallback(() => {
+    window.scrollTo({
+      top: window.innerHeight * 1.15,
+      behavior: 'smooth',
     })
   }, [])
 
@@ -400,28 +405,15 @@ export default function ScrollExperience({ onEnterTown }) {
   return (
     <div
       ref={containerRef}
-      className="relative w-full bg-[#0a0f16] select-none"
-      style={{ minHeight: '220vh' }}
+      className="relative w-full bg-white select-none"
     >
       {/* ========================================================================= */}
-      {/* SECTION 1: HERO TRACK (PINNED VIEWPORT DENGAN PIXEL DISSOLVE)              */}
+      {/* SECTION 1: HERO VIEWPORT (PINNED OLEH GSAP DENGAN PIXEL DISSOLVE)         */}
       {/* ========================================================================= */}
       <div
         ref={pinWrapperRef}
-        className="sticky top-0 h-screen w-full overflow-hidden bg-[#0a0f16]"
+        className="relative h-screen w-full overflow-hidden bg-white"
       >
-        {/* ========================================================================= */}
-        {/* SECTION 2 (DESTINASI): AboutScreen (Muncul di tempat dari balik piksel)    */}
-        {/* ========================================================================= */}
-        <div
-          ref={aboutWrapperRef}
-          className="pointer-events-none absolute inset-0 z-2 opacity-0 overflow-hidden will-change-[transform,opacity]"
-        >
-          <div ref={aboutContentRef} className="h-full w-full will-change-transform">
-            <GameDescriptionSection onScrollToTop={handleScrollToTop} />
-          </div>
-        </div>
-
         {/* Preview Town saat tombol Enter the Town ditekan */}
         {isEnteringTown && (
           <div className="absolute inset-0 z-3 flex items-center justify-center bg-[#17212a] will-change-[opacity]">
@@ -475,26 +467,41 @@ export default function ScrollExperience({ onEnterTown }) {
             ref={buttonRef}
             type="button"
             onClick={handleEnterTownClick}
-            className="group relative mt-10 inline-flex cursor-pointer items-center justify-center border-2 border-amber-300 bg-[#141926]/90 px-7 py-3.5 font-['Press_Start_2P',monospace] text-[11px] uppercase tracking-wider text-amber-300 shadow-[4px_4px_0px_#000000] transition-all duration-150 select-none hover:-translate-y-0.5 hover:border-amber-200 hover:bg-amber-300 hover:text-[#10141d] hover:shadow-[6px_6px_0px_#000000] active:translate-x-1 active:translate-y-1 active:shadow-none sm:px-9 sm:py-4 sm:text-xs pointer-events-auto"
+            className="group relative mt-10 inline-flex cursor-pointer items-center justify-center border-2 border-black bg-[#bde200] px-7 py-3.5 font-['Press_Start_2P',monospace] text-[11px] uppercase tracking-wider text-black shadow-[4px_4px_0px_#000000] transition-all duration-150 select-none hover:-translate-y-0.5 hover:bg-[#0c71c3] hover:text-white hover:shadow-[6px_6px_0px_#000000] active:translate-x-1 active:translate-y-1 active:shadow-none sm:px-9 sm:py-4 sm:text-xs pointer-events-auto"
           >
-            <span className="mr-2.5 text-amber-400 transition-colors duration-150 group-hover:text-[#10141d]">
+            <span className="mr-2.5 text-[#0c71c3] transition-colors duration-150 group-hover:text-white">
               ▶
             </span>
             <span>ENTER THE TOWN</span>
-            <span className="ml-2.5 text-amber-400 transition-colors duration-150 group-hover:text-[#10141d]">
+            <span className="ml-2.5 text-[#0c71c3] transition-colors duration-150 group-hover:text-white">
               ◀
             </span>
           </button>
 
           {/* Hint Scroll Indikator: Masuk ke About Screen */}
-          <div className="mt-6 flex flex-col items-center opacity-60 transition-opacity hover:opacity-100">
-            <span className="font-['Press_Start_2P',monospace] text-[9px] tracking-widest text-amber-200/80">
+          <div
+            onClick={handleScrollDownClick}
+            className="mt-6 flex flex-col items-center opacity-90 transition-opacity hover:opacity-100 cursor-pointer pointer-events-auto"
+          >
+            <span className="border-2 border-black bg-white/95 px-3.5 py-1 font-['Press_Start_2P',monospace] text-[9px] tracking-widest text-black shadow-[2px_2px_0px_#000000]">
               SCROLL DOWN FOR ABOUT GAME
             </span>
-            <span className="mt-1 animate-bounce text-amber-300 text-xs">
+            <span className="mt-1.5 animate-bounce text-[#bde200] text-sm drop-shadow-[0_2px_3px_rgba(0,0,0,0.9)]">
               ▼
             </span>
           </div>
+        </div>
+      </div>
+
+      {/* ========================================================================= */}
+      {/* SECTION 2: ABOUT SECTION (TRANSISI DARI BAWAH SETELAH HERO SELESAI PIN)   */}
+      {/* ========================================================================= */}
+      <div
+        ref={aboutSectionRef}
+        className="relative z-20 w-full bg-white"
+      >
+        <div ref={aboutContentRef} className="w-full will-change-[transform,opacity]">
+          <GameDescriptionSection onScrollToTop={handleScrollToTop} />
         </div>
       </div>
     </div>

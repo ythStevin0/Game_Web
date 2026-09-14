@@ -9,14 +9,125 @@
 }
 
 :root {
+  --color-lime: #bde200;
+  --color-blue: #0c71c3;
+  --color-black: #000000;
+  --color-white: #ffffff;
   font-family: "Lucida Bright Local", Georgia, serif;
-  color: #f5f5f4;
-  background: #10131a;
+  color: #000000;
+  background: #ffffff;
+}
+
+html {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  overflow-x: clip;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  background-color: #ffffff;
+  color: #000000;
 }
 
 body {
   margin: 0;
+  padding: 0;
+  width: 100%;
   min-width: 320px;
+  overflow-x: clip;
+  overflow-y: visible;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  background-color: #ffffff;
+  color: #000000;
+}
+
+#root {
+  width: 100%;
+  overflow-x: clip;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+/* Sembunyikan scrollbar sepenuhnya di seluruh browser (Chrome, Edge, Safari, Firefox) */
+::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+html,
+body,
+* {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+/* Pixel Art Utilities */
+.pixel-corners {
+  clip-path: polygon(
+    0 4px, 4px 4px, 4px 0,
+    calc(100% - 4px) 0, calc(100% - 4px) 4px, 100% 4px,
+    100% calc(100% - 4px), calc(100% - 4px) calc(100% - 4px), calc(100% - 4px) 100%,
+    4px 100%, 4px calc(100% - 4px), 0 calc(100% - 4px)
+  );
+}
+
+.pixel-shadow {
+  box-shadow: 4px 4px 0px #000000;
+}
+
+.pixel-shadow-sm {
+  box-shadow: 2px 2px 0px #000000;
+}
+
+.pixel-shadow-lg {
+  box-shadow: 6px 6px 0px #000000;
+}
+
+.pixel-dots-bg {
+  background-image: radial-gradient(#0c71c3 0.75px, transparent 0.75px);
+  background-size: 16px 16px;
+}
+
+.pixel-art {
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+}
+
+@keyframes pixel-blink {
+  0%, 49% {
+    opacity: 1;
+  }
+  50%, 100% {
+    opacity: 0;
+  }
+}
+
+.pixel-blink {
+  animation: pixel-blink 0.75s steps(1) infinite;
+}
+
+@keyframes pixel-idle-bob {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.pixel-idle-bob {
+  animation: pixel-idle-bob 1.8s steps(2, end) infinite;
+}
+
+.pixel-scanlines {
+  background: linear-gradient(
+    rgba(18, 16, 16, 0) 50%,
+    rgba(0, 0, 0, 0.08) 50%
+  );
+  background-size: 100% 4px;
 }
 
 button {

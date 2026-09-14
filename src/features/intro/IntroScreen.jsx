@@ -298,9 +298,9 @@ function InteractiveIntro({ onEnter, onBack }) {
 
       {/* Top HUD: Location badge & Kembali ke Halaman Awal */}
       <header className="pointer-events-auto absolute top-5 left-5 right-5 z-30 flex items-center justify-between sm:top-7 sm:left-8 sm:right-8">
-        <div className="flex items-center gap-3 border border-amber-400/30 bg-[#101824]/85 px-3.5 py-2 shadow-[2px_2px_0px_#000000] backdrop-blur-sm">
-          <span className="h-2 w-2 bg-amber-400 animate-pulse shadow-[0_0_6px_#f59e0b]" />
-          <span className="font-['Press_Start_2P',monospace] text-[9px] tracking-wider text-amber-300 sm:text-[10px]">
+        <div className="flex items-center gap-2.5 border-2 border-black bg-white px-3.5 py-1.5 shadow-[3px_3px_0px_#000000]">
+          <span className="h-2.5 w-2.5 bg-[#bde200] border border-black shadow-[1px_1px_0px_#000]" />
+          <span className="font-['Press_Start_2P',monospace] text-[9px] tracking-wider text-black sm:text-[10px]">
             Kota kecil, sore hari
           </span>
         </div>
@@ -309,7 +309,7 @@ function InteractiveIntro({ onEnter, onBack }) {
           <button
             type="button"
             onClick={onBack}
-            className="cursor-pointer border-2 border-amber-300/80 bg-[#121926]/90 px-3.5 py-2 font-['Press_Start_2P',monospace] text-[9px] text-amber-300 shadow-[3px_3px_0px_#000000] transition hover:bg-amber-300 hover:text-[#10141d] active:translate-x-0.5 active:translate-y-0.5 sm:text-[10px]"
+            className="cursor-pointer border-2 border-black bg-[#bde200] px-3.5 py-1.5 font-['Press_Start_2P',monospace] text-[9px] text-black shadow-[3px_3px_0px_#000000] transition-all hover:bg-[#0c71c3] hover:text-white active:translate-x-0.5 active:translate-y-0.5 active:shadow-none sm:text-[10px]"
           >
             ▲ KEMBALI KE HALAMAN AWAL
           </button>
@@ -317,17 +317,19 @@ function InteractiveIntro({ onEnter, onBack }) {
       </header>
 
       {/* Bottom Controls Helper */}
-      <div className="pointer-events-none absolute bottom-4 left-1/2 z-30 -translate-x-1/2 flex items-center gap-2 rounded bg-black/70 px-3 py-1.5 text-[10px] font-mono text-stone-300 backdrop-blur-sm border border-stone-800">
-        <span>KONTROL:</span>
-        <kbd className="border border-stone-600 bg-stone-900 px-1 text-[9px] text-amber-200">A</kbd>
-        <kbd className="border border-stone-600 bg-stone-900 px-1 text-[9px] text-amber-200">D</kbd>
-        <span className="text-stone-500">/</span>
-        <kbd className="border border-stone-600 bg-stone-900 px-1 text-[9px] text-amber-200">◄</kbd>
-        <kbd className="border border-stone-600 bg-stone-900 px-1 text-[9px] text-amber-200">►</kbd>
-        <span className="text-stone-400">Jalan</span>
-        <span className="text-stone-600">|</span>
-        <kbd className="border border-stone-600 bg-stone-900 px-1 text-[9px] text-amber-200">E</kbd>
-        <span className="text-stone-400">Interaksi</span>
+      <div className="pointer-events-none absolute bottom-4 left-1/2 z-30 -translate-x-1/2 flex items-center gap-2 border-2 border-black bg-white px-3.5 py-1.5 text-[10px] font-mono text-black shadow-[3px_3px_0px_#000000]">
+        <span className="font-['Press_Start_2P',monospace] text-[8px] bg-[#bde200] px-1.5 py-0.5 border border-black text-black">
+          KONTROL:
+        </span>
+        <kbd className="bg-stone-100 border border-black px-1 font-bold">A</kbd>
+        <kbd className="bg-stone-100 border border-black px-1 font-bold">D</kbd>
+        <span>/</span>
+        <kbd className="bg-stone-100 border border-black px-1 font-bold">◀</kbd>
+        <kbd className="bg-stone-100 border border-black px-1 font-bold">▶</kbd>
+        <span>Jalan</span>
+        <span className="mx-1">|</span>
+        <kbd className="bg-[#0c71c3] text-white border border-black px-1 font-bold">E</kbd>
+        <span>Interaksi</span>
       </div>
 
       <section className="pointer-events-none absolute inset-0 z-20">
