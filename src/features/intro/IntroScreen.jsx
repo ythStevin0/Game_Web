@@ -268,7 +268,7 @@ function InteractiveIntro({ onEnter }) {
             return current
           }
 
-          const maxX = roomRef.current === 'konflik' ? 177 : 97
+          const maxX = roomRef.current === 'konflik' ? 128 : 97
           return {
             x: Math.min(maxX, Math.max(3, nextX)),
             y: current.y,
@@ -349,19 +349,20 @@ function InteractiveIntro({ onEnter }) {
           />
         ) : (
           <>
-            <div className="absolute inset-y-0 left-[0vw] w-[100vw] bg-cover bg-bottom z-10" style={{ backgroundImage: "url('/assets/loading/konflik1.png')" }} />
-            <div className="absolute inset-y-0 left-[80vw] w-[100vw] bg-cover bg-bottom z-20" style={{ 
+            <div className="absolute inset-y-0 left-0 w-screen bg-cover bg-bottom z-10" style={{ backgroundImage: "url('/assets/loading/konflik1.png')" }} />
+            <div className="absolute inset-y-0 left-[80vw] w-screen bg-cover bg-bottom z-20" style={{ 
               backgroundImage: "url('/assets/loading/konflik2.png')",
-              maskImage: 'linear-gradient(to right, transparent, black 25vw)',
-              WebkitMaskImage: 'linear-gradient(to right, transparent, black 25vw)'
+              maskImage: 'linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 15vw)',
+              WebkitMaskImage: 'linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 15vw)'
             }} />
           </>
         )}
         <div aria-hidden="true" className="absolute inset-0 bg-[#101925]/38" />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute bottom-0 left-0 w-full z-25 [image-rendering:pixelated]"
+        className="pointer-events-none absolute bottom-0 left-0 z-25 [image-rendering:pixelated]"
         style={{
+          width: room === 'konflik' ? '117vw' : '100vw',
           height: '30vh',
           backgroundImage: `url(${grassForeground})`,
           backgroundSize: 'auto 100%',
