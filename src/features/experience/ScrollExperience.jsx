@@ -2,6 +2,8 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import GameDescriptionSection from './GameDescriptionSection'
+import { CharactersSection } from '../characters/CharactersSection'
+import { GallerySection } from '../gallery/GallerySection'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -12,14 +14,14 @@ gsap.registerPlugin(ScrollTrigger)
  * 3. floatForce: Daya dorong apung partikel ke atas saat terurai dari tengah bawah ke atas (px)
  */
 export const PIXEL_TRANSITION_CONFIG = {
-  // Ukuran piksel kotak (px) - ukuran 14px menghasilkan partikel retro 16-bit yang padat dan tajam
-  pixelSize: 14,
+  // Ukuran piksel kotak (px) - ukuran lebih kecil agar lebih padat dan halus
+  pixelSize: 10,
 
   // Kekuatan sebaran partikel menyamping saat terurai (luas & dramatis)
-  scatterForce: 65,
+  scatterForce: 60,
 
   // Daya dorong apung partikel ke atas (bottom-up drift yang tinggi)
-  floatForce: 68,
+  floatForce: 65,
 }
 
 const thumbnailAsset = '/assets/a_space_unbound/foto/thumnail/thumnail2.webp'
@@ -36,6 +38,7 @@ export default function ScrollExperience({ onEnterTown }) {
   const logoRef = useRef(null)
   const buttonRef = useRef(null)
   const whiteFadeRef = useRef(null)
+  const pinWrapperRef = useRef(null)
 
   const [imagesLoaded, setImagesLoaded] = useState(false)
   const [isEnteringTown, setIsEnteringTown] = useState(false)
@@ -262,21 +265,7 @@ export default function ScrollExperience({ onEnterTown }) {
         { autoAlpha: 1, y: 0, scale: 1, duration: 0.7, delay: 0.5, ease: 'power2.out' }
       )
 
-      // 3. Set status awal seluruh elemen Section About agar tersembunyi (siap di-stagger dari bawah)
-      gsap.set(
-        [
-          '.about-anim-header',
-          '.about-anim-eyebrow',
-          '.about-anim-title',
-          '.about-anim-dialogue',
-          '.about-anim-badges',
-          '.about-anim-gallery',
-        ],
-        {
-          autoAlpha: 0,
-          y: 45,
-        }
-      )
+      // 3. (Dipindahkan ke GameDescriptionSection.jsx)
 
       // Objek proxy untuk mengendalikan nilai p (0 -> 1) disintegrasi piksel
       const dissolveProxy = { p: 0 }
@@ -301,7 +290,7 @@ export default function ScrollExperience({ onEnterTown }) {
               } else {
                 heroBgWrapperRef.current.style.opacity = '1'
                 const cutRadius = Math.min(140, p * 140)
-                const maskStyle = `radial-gradient(ellipse 85% 75% at 50% 100%, transparent ${cutRadius}%, black ${cutRadius + 12}%)`
+                const maskStyle = `radial-gradient(ellipse 85% 75% at 50% 100%, transparent ${cutRadius}%, black ${cutRadius + 25}%)`
                 heroBgWrapperRef.current.style.maskImage = maskStyle
                 heroBgWrapperRef.current.style.webkitMaskImage = maskStyle
               }
@@ -322,8 +311,9 @@ export default function ScrollExperience({ onEnterTown }) {
         scrollTrigger: {
           trigger: containerRef.current,
           start: 'top top',
-          end: () => `+=${window.innerHeight * 2.0}`,
-          scrub: true,
+          end: () => `+=${window.innerHeight * 3.0}`, // Kembalikan jarak scroll yang panjang (heavy)
+          scrub: 1.5,
+          pin: true, // KUNCI! Halaman berhenti scroll secara fisik selama animasi dissolve
         },
       })
 
@@ -366,76 +356,9 @@ export default function ScrollExperience({ onEnterTown }) {
         0.90
       )
 
-      // === STAGGERED CONTENT ENTRANCE: SECTION ABOUT (t: 0.25 -> 1.85) ===
-      // Elemen-elemen Section About muncul bertahap dari bawah ke atas (slide up + fade in)
-      // secara berurutan mengikuti laju scroll
-      masterTl
-        // 1. Top Bar: Section Badge & Tombol Kembali (t: 0.25 -> 0.50)
-        .to(
-          '.about-anim-header',
-          {
-            autoAlpha: 1,
-            y: 0,
-            duration: 0.25,
-            ease: 'power2.out',
-          },
-          0.25
-        )
-        // 2. Eyebrow Tag 16-Bit Pixel Adventure (t: 0.42 -> 0.67)
-        .to(
-          '.about-anim-eyebrow',
-          {
-            autoAlpha: 1,
-            y: 0,
-            duration: 0.25,
-            ease: 'power2.out',
-          },
-          0.42
-        )
-        // 3. Judul Headline "HIGH SCHOOL IS ENDING..." & Stepped Divider (t: 0.60 -> 0.85)
-        .to(
-          '.about-anim-title',
-          {
-            autoAlpha: 1,
-            y: 0,
-            duration: 0.25,
-            ease: 'power2.out',
-          },
-          0.60
-        )
-        // 4. Pixel RPG Dialogue Box (Atma, Story, Raya) (t: 0.80 -> 1.15)
-        .to(
-          '.about-anim-dialogue',
-          {
-            autoAlpha: 1,
-            y: 0,
-            duration: 0.35,
-            ease: 'power2.out',
-          },
-          0.80
-        )
-        // 5. Retro Badges & Platform Cartridge Logos (t: 1.15 -> 1.50)
-        .to(
-          '.about-anim-badges',
-          {
-            autoAlpha: 1,
-            y: 0,
-            duration: 0.35,
-            ease: 'power2.out',
-          },
-          1.15
-        )
-        // 6. Art Gallery Arcade Monitor Frame & Thumbnail Strip (t: 1.45 -> 1.85)
-        .to(
-          '.about-anim-gallery',
-          {
-            autoAlpha: 1,
-            y: 0,
-            duration: 0.40,
-            ease: 'power2.out',
-          },
-          1.45
-        )
+      // Staggered Content Entrance untuk Section About telah dipindahkan ke GameDescriptionSection.jsx
+      // menggunakan ScrollTrigger.batch agar trigger natural saat masuk layar (viewport),
+      // bukan terikat pada master timeline pixel dissolve.
     }, container)
 
     return () => ctx.revert()
@@ -501,14 +424,18 @@ export default function ScrollExperience({ onEnterTown }) {
   return (
     <div
       ref={containerRef}
-      className="relative w-full bg-white select-none"
+      className="relative bg-black font-sans text-white overflow-hidden selection:bg-[#ff9800] selection:text-black"
     >
+      {/* Anchor khusus untuk tracking seksi Hero tanpa terpengaruh GSAP Pin */}
+      <div id="hero-anchor" className="absolute top-0 left-0 w-full h-screen pointer-events-none" />
+
       {/* ========================================================================= */}
       {/* LAYER ATAS (z-index: 2 / z-20 - SECTION HERO: GAMBAR UTAMA + HTML5 CANVAS) */}
       {/* ========================================================================= */}
       <div
+        id="hero"
         ref={pinWrapperRef}
-        className="sticky top-0 h-screen w-full overflow-hidden bg-black z-20 pointer-events-none"
+        className="absolute top-0 left-0 h-screen w-full overflow-hidden bg-transparent z-20 pointer-events-none"
       >
         {/* Preview Town saat tombol Enter the Town ditekan */}
         {isEnteringTown && (
@@ -600,7 +527,19 @@ export default function ScrollExperience({ onEnterTown }) {
         ref={aboutSectionRef}
         className="relative z-10 w-full bg-white"
       >
-        <GameDescriptionSection onScrollToTop={handleScrollToTop} />
+        <div id="about">
+          <GameDescriptionSection onScrollToTop={handleScrollToTop} />
+        </div>
+        
+        {/* ========================================================================= */}
+        {/* GALLERY SECTION                                                           */}
+        {/* ========================================================================= */}
+        <GallerySection />
+
+        {/* ========================================================================= */}
+        {/* CHARACTER SHOWCASE SECTION                                                */}
+        {/* ========================================================================= */}
+        <CharactersSection />
       </div>
     </div>
   )
