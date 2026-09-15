@@ -349,11 +349,11 @@ function InteractiveIntro({ onEnter }) {
           />
         ) : (
           <>
-            <div className="absolute inset-y-0 left-[0vw] w-[100vw] bg-cover bg-bottom z-10" style={{ backgroundImage: "url('/assets/loading/konflik1.png')" }} />
-            <div className="absolute inset-y-0 left-[80vw] w-[100vw] bg-cover bg-bottom z-20" style={{ 
+            <div className="absolute inset-y-0 left-0 w-screen bg-cover bg-bottom z-10" style={{ backgroundImage: "url('/assets/loading/konflik1.png')" }} />
+            <div className="absolute inset-y-0 left-[80vw] w-screen bg-cover bg-bottom z-20" style={{ 
               backgroundImage: "url('/assets/loading/konflik2.png')",
-              maskImage: 'linear-gradient(to right, transparent, black 25vw)',
-              WebkitMaskImage: 'linear-gradient(to right, transparent, black 25vw)'
+              maskImage: 'linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 15vw)',
+              WebkitMaskImage: 'linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 15vw)'
             }} />
           </>
         )}
