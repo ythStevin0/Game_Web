@@ -268,7 +268,7 @@ function InteractiveIntro({ onEnter }) {
             return current
           }
 
-          const maxX = roomRef.current === 'konflik' ? 177 : 97
+          const maxX = roomRef.current === 'konflik' ? 128 : 97
           return {
             x: Math.min(maxX, Math.max(3, nextX)),
             y: current.y,
@@ -360,8 +360,9 @@ function InteractiveIntro({ onEnter }) {
         <div aria-hidden="true" className="absolute inset-0 bg-[#101925]/38" />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute bottom-0 left-0 w-full z-25 [image-rendering:pixelated]"
+        className="pointer-events-none absolute bottom-0 left-0 z-25 [image-rendering:pixelated]"
         style={{
+          width: room === 'konflik' ? '117vw' : '100vw',
           height: '30vh',
           backgroundImage: `url(${grassForeground})`,
           backgroundSize: 'auto 100%',
