@@ -163,8 +163,44 @@ function InteractiveIntro({ onEnter }) {
   const [position, setPosition] = useState({ x: 69, y: 96, facing: 1 })
   const [dialogTarget, setDialogTarget] = useState(null)
 
-  const isNearNirmala = Math.abs(position.x - NIRMALA_POSITION.x) < 8 && Math.abs(position.y - NIRMALA_POSITION.y) < 16
-  const isNearBoard = Math.abs(position.x - 52) < 5
+  const [room, setRoomState] = useState('gerbong')
+  const roomRef = useRef('gerbong')
+  const setRoom = (r) => {
+    roomRef.current = r
+    setRoomState(r)
+  }
+  
+  const isTransitioningRef = useRef(false)
+  const transitionOverlayRef = useRef(null)
+
+  const isNearNirmala = room === 'gerbong' && Math.abs(position.x - NIRMALA_POSITION.x) < 8 && Math.abs(position.y - NIRMALA_POSITION.y) < 16
+  const isNearBoard = room === 'gerbong' && Math.abs(position.x - 52) < 5
+
+  const triggerRoomTransition = (targetRoom, newX) => {
+    if (isTransitioningRef.current) return
+    isTransitioningRef.current = true
+    keysRef.current.clear()
+    setIsMoving(false)
+    setDialogTarget(null)
+
+    gsap.to(transitionOverlayRef.current, {
+      autoAlpha: 1,
+      duration: 0.5,
+      onComplete: () => {
+        setRoom(targetRoom)
+        setPosition(p => ({ ...p, x: newX }))
+        
+        gsap.to(transitionOverlayRef.current, {
+          autoAlpha: 0,
+          duration: 0.5,
+          delay: 0.2,
+          onComplete: () => {
+            isTransitioningRef.current = false
+          }
+        })
+      }
+    })
+  }
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -209,17 +245,36 @@ function InteractiveIntro({ onEnter }) {
 
     let frameId
     const moveCharacter = () => {
+      if (isTransitioningRef.current) {
+        frameId = window.requestAnimationFrame(moveCharacter)
+        return
+      }
+
       const keys = keysRef.current
       const left = keys.has('arrowleft') || keys.has('a')
       const right = keys.has('arrowright') || keys.has('d')
       const horizontal = Number(right) - Number(left)
 
       if (horizontal) {
-        setPosition((current) => ({
-          x: Math.min(96, Math.max(4, current.x + horizontal * 0.42)),
-          y: current.y,
-          facing: horizontal === 0 ? current.facing : horizontal,
-        }))
+        setPosition((current) => {
+          const nextX = current.x + horizontal * 0.75
+          
+          if (roomRef.current === 'gerbong' && nextX >= 97) {
+            triggerRoomTransition('konflik', 5)
+            return current
+          }
+          if (roomRef.current === 'konflik' && nextX <= 3) {
+            triggerRoomTransition('gerbong', 95)
+            return current
+          }
+
+          const maxX = roomRef.current === 'konflik' ? 177 : 97
+          return {
+            x: Math.min(maxX, Math.max(3, nextX)),
+            y: current.y,
+            facing: horizontal === 0 ? current.facing : horizontal,
+          }
+        })
       }
 
       frameId = window.requestAnimationFrame(moveCharacter)
@@ -262,7 +317,11 @@ function InteractiveIntro({ onEnter }) {
     return () => context.revert()
   }, [])
 
-  const cameraPosition = `${50 + (position.x - 69) * 0.12}% ${80 + (position.y - 96) * 0.06}%`
+  const cameraPosition = room === 'gerbong'
+    ? `${50 + (position.x - 69) * 0.12}% ${80 + (position.y - 96) * 0.06}%`
+    : '50% 50%'
+
+  const cameraX = room === 'konflik' ? Math.max(0, Math.min(80, position.x - 50)) : 0
 
   return (
     <div
@@ -271,16 +330,34 @@ function InteractiveIntro({ onEnter }) {
       className="relative h-dvh min-h-0 overflow-hidden bg-[#17212a] text-stone-100"
       tabIndex="-1"
     >
-      <div
-        aria-hidden="true"
-        className="absolute inset-[-3%] bg-cover transition-[background-position] duration-150"
-        data-hero-world
+      <div 
+        className="absolute inset-0 h-full will-change-transform"
         style={{
-          backgroundImage: "url('/assets/loading/gerbong.png')",
-          backgroundPosition: cameraPosition,
+          width: room === 'konflik' ? '180vw' : '100vw',
+          transform: `translateX(-${cameraX}vw)`,
         }}
-      />
-      <div aria-hidden="true" className="absolute inset-0 bg-[#101925]/38" />
+      >
+        {room === 'gerbong' ? (
+          <div
+            aria-hidden="true"
+            className="absolute inset-[-3%] bg-cover transition-[background-position] duration-150"
+            data-hero-world
+            style={{
+              backgroundImage: "url('/assets/loading/gerbong.png')",
+              backgroundPosition: cameraPosition,
+            }}
+          />
+        ) : (
+          <>
+            <div className="absolute inset-y-0 left-[0vw] w-[100vw] bg-cover bg-bottom z-10" style={{ backgroundImage: "url('/assets/loading/konflik1.png')" }} />
+            <div className="absolute inset-y-0 left-[80vw] w-[100vw] bg-cover bg-bottom z-20" style={{ 
+              backgroundImage: "url('/assets/loading/konflik2.png')",
+              maskImage: 'linear-gradient(to right, transparent, black 25vw)',
+              WebkitMaskImage: 'linear-gradient(to right, transparent, black 25vw)'
+            }} />
+          </>
+        )}
+        <div aria-hidden="true" className="absolute inset-0 bg-[#101925]/38" />
       <div
         aria-hidden="true"
         className="pointer-events-none absolute bottom-0 left-0 w-full z-25 [image-rendering:pixelated]"
@@ -297,11 +374,11 @@ function InteractiveIntro({ onEnter }) {
 
 
       <section className="pointer-events-none absolute inset-0 z-20">
-        {isNearBoard && dialogTarget !== 'board' && (
+        {room === 'gerbong' && isNearBoard && dialogTarget !== 'board' && (
           <div
             className="pointer-events-auto absolute z-30"
             style={{
-              left: '51.7%',
+              left: '51.7vw',
               top: '48%',
               transform: 'translate(-50%, -50%)',
             }}
@@ -320,11 +397,11 @@ function InteractiveIntro({ onEnter }) {
             </button>
           </div>
         )}
-        {dialogTarget === 'board' && (
+        {room === 'gerbong' && dialogTarget === 'board' && (
           <div
             className="pointer-events-auto absolute z-30"
             style={{
-              left: `${position.x}%`,
+              left: `${position.x}vw`,
               top: `${position.y}%`,
               transform: 'translate(-50%, -100%)',
             }}
@@ -364,11 +441,11 @@ function InteractiveIntro({ onEnter }) {
             </button>
           </div>
         )}
-        {isNearNirmala && dialogTarget !== 'nirmala' && (
+        {room === 'gerbong' && isNearNirmala && dialogTarget !== 'nirmala' && (
           <div
             className="pointer-events-none absolute z-15"
             style={{
-              left: `${NIRMALA_POSITION.x}%`,
+              left: `${NIRMALA_POSITION.x}vw`,
               top: '53%',
               transform: 'translate(-50%, -50%)',
             }}
@@ -381,37 +458,39 @@ function InteractiveIntro({ onEnter }) {
             />
           </div>
         )}
-        <div
-          aria-label="Nirmala. Dekati dengan Atma untuk membuka dialog."
-          className="pointer-events-none absolute z-10"
-          style={{
-            left: `${NIRMALA_POSITION.x}%`,
-            top: `${NIRMALA_POSITION.y}%`,
-            transform: 'translate(-50%, -100%)',
-          }}
-        >
-          <div className="relative hero-npc--idle">
-            <DialogBubble
-              isOpen={dialogTarget === 'nirmala'}
-              label="Nirmala"
-              onToggle={() => setDialogTarget((current) => (current === 'nirmala' ? null : 'nirmala'))}
-            >
-              {introContent.nirmalaGreeting}
-            </DialogBubble>
-            <img
-              alt="Nirmala pixel character"
-              className="h-75 w-auto translate-y-[7%] object-contain [image-rendering:pixelated]"
-              src={nirmalaPixel}
-            />
+        {room === 'gerbong' && (
+          <div
+            aria-label="Nirmala. Dekati dengan Atma untuk membuka dialog."
+            className="pointer-events-none absolute z-10"
+            style={{
+              left: `${NIRMALA_POSITION.x}vw`,
+              top: `${NIRMALA_POSITION.y}%`,
+              transform: 'translate(-50%, -100%)',
+            }}
+          >
+            <div className="relative hero-npc--idle">
+              <DialogBubble
+                isOpen={dialogTarget === 'nirmala'}
+                label="Nirmala"
+                onToggle={() => setDialogTarget((current) => (current === 'nirmala' ? null : 'nirmala'))}
+              >
+                {introContent.nirmalaGreeting}
+              </DialogBubble>
+              <img
+                alt="Nirmala pixel character"
+                className="h-75 w-auto translate-y-[7%] object-contain [image-rendering:pixelated]"
+                src={nirmalaPixel}
+              />
+            </div>
           </div>
-        </div>
+        )}
 
         <div
           aria-label="Atma. Use A and D or the left and right arrow keys to move."
           className="pointer-events-none absolute z-20"
           data-hero-character
           style={{
-            left: `${position.x}%`,
+            left: `${position.x}vw`,
             top: `${position.y}%`,
             transform: 'translate(-50%, -100%)',
           }}
@@ -421,14 +500,14 @@ function InteractiveIntro({ onEnter }) {
             {isMoving ? (
               <img
                 alt="Atma running"
-                className="h-76 w-auto object-contain [image-rendering:pixelated]"
+                className="h-76 w-auto max-w-none object-contain [image-rendering:pixelated]"
                 src="/assets/loading/atma_lari.webp?v=7"
                 style={{ transform: `scaleX(${position.facing})` }}
               />
             ) : (
               <img
                 alt="Atma pixel character"
-                className="h-76 w-auto object-contain [image-rendering:pixelated]"
+                className="h-76 w-auto max-w-none object-contain [image-rendering:pixelated]"
                 src={atmaPixel}
                 style={{ transform: `scaleX(${position.facing})` }}
               />
@@ -436,7 +515,14 @@ function InteractiveIntro({ onEnter }) {
           </div>
         </div>
       </section>
+      </div>
 
+      {/* Room Transition Overlay */}
+      <div 
+        ref={transitionOverlayRef} 
+        className="pointer-events-none absolute inset-0 z-50 bg-black" 
+        style={{ opacity: 0, visibility: 'hidden' }}
+      />
     </div>
   )
 }
