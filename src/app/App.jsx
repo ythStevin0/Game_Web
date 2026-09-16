@@ -17,8 +17,8 @@ export default function App() {
 
   return (
     <>
-      <SideNavigation />
       <ScrollExperience onEnterTown={() => setStage('intro')} />
+      <SideNavigation />
     </>
   )
 }

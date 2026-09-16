@@ -1,12 +1,28 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin'
 
-gsap.registerPlugin(ScrollTrigger, ScrollToPlugin)
+gsap.registerPlugin(ScrollToPlugin)
 
+/**
+ * SideNavigation — Sidebar navigasi fixed di kanan layar.
+ * 
+ * Pendekatan deteksi posisi:
+ * - Menggunakan scroll event + getBoundingClientRect() langsung,
+ *   BUKAN ScrollTrigger, karena GSAP pin mengubah posisi elemen
+ *   di DOM dan membuat ScrollTrigger tidak akurat untuk elemen
+ *   yang berada di dalam container yang sedang di-pin.
+ * 
+ * Aturan visibilitas:
+ * - Sidebar TERSEMBUNYI saat hero section masih terlihat di layar.
+ * - Sidebar MUNCUL (dengan animasi fade-in) setelah user scroll
+ *   melewati hero section.
+ */
 export function SideNavigation() {
   const [activeSection, setActiveSection] = useState('hero')
+  const [isVisible, setIsVisible] = useState(false)
+  const navRef = useRef(null)
+  const rafRef = useRef(null)
 
   const sections = [
     { id: 'hero', label: '01: HOME', color: '#0c71c3' },
@@ -15,48 +31,111 @@ export function SideNavigation() {
     { id: 'characters', label: '04: CHARACTER', color: '#ff9800' }
   ]
 
-  // Melacak posisi scroll dengan akurat menggunakan GSAP ScrollTrigger
-  useEffect(() => {
-    const triggers = []
-    
-    // Memberikan sedikit waktu agar render dan pin selesai
-    const timeout = setTimeout(() => {
-      sections.forEach(s => {
-        const elId = s.id === 'hero' ? 'hero-anchor' : s.id
-        const el = document.getElementById(elId)
-        if (el) {
-          const trigger = ScrollTrigger.create({
-            trigger: el,
-            start: 'top 50%', // Menjadi aktif ketika elemen mencapai tengah layar
-            end: 'bottom 50%',
-            onEnter: () => setActiveSection(s.id),
-            onEnterBack: () => setActiveSection(s.id),
-          })
-          triggers.push(trigger)
-        }
-      })
-    }, 500)
+  // Fungsi untuk mendeteksi section mana yang sedang aktif
+  const detectActiveSection = useCallback(() => {
+    const viewportCenter = window.innerHeight / 2
+    const vh = window.innerHeight
 
-    return () => {
-      clearTimeout(timeout)
-      triggers.forEach(t => t.kill())
+    // 1. Cek apakah masih di area Hero (zona GSAP pin).
+    // 1. Cek apakah masih di area Home (Hero) ATAU sedang dalam animasi dissolve.
+    // Animasi dissolve di ScrollExperience menggunakan GSAP pin selama 3x viewport height.
+    // Kita sembunyikan sidebar SEPENUHNYA selama fase ini agar tidak tertumpuk animasi.
+    // Sidebar baru akan muncul setelah animasi selesai (saat user benar-benar masuk ke konten About).
+    const pinEndThreshold = vh * 2.8
+
+    if (window.scrollY < pinEndThreshold) {
+      setActiveSection('hero')
+      setIsVisible(false)
+      return
     }
+
+    // 2. Sudah melewati zona Hero dan animasi dissolve -> tampilkan sidebar
+    setIsVisible(true)
+
+    // 3. Melewati zona pin, gunakan deteksi posisi elemen (getBoundingClientRect)
+    const sectionIds = ['about', 'gallery', 'characters']
+    let bestId = 'about'
+    let bestDistance = Infinity
+
+    for (const id of sectionIds) {
+      const el = document.getElementById(id)
+      if (!el) continue
+
+      const rect = el.getBoundingClientRect()
+      // Hitung jarak tengah elemen ke tengah viewport
+      const elCenter = rect.top + rect.height / 2
+      const distance = Math.abs(elCenter - viewportCenter)
+
+      // Juga cek apakah elemen sedang terlihat di viewport
+      const isInView = rect.top < window.innerHeight && rect.bottom > 0
+
+      if (isInView && distance < bestDistance) {
+        bestDistance = distance
+        bestId = id
+      }
+    }
+
+    setActiveSection(bestId)
   }, [])
 
+  // Scroll listener dengan throttle via requestAnimationFrame
+  useEffect(() => {
+    const onScroll = () => {
+      if (rafRef.current) return
+      rafRef.current = requestAnimationFrame(() => {
+        detectActiveSection()
+        rafRef.current = null
+      })
+    }
+
+    // Deteksi awal setelah render selesai
+    const initTimeout = setTimeout(() => {
+      detectActiveSection()
+    }, 600)
+
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll, { passive: true })
+
+    return () => {
+      clearTimeout(initTimeout)
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current)
+      }
+    }
+  }, [detectActiveSection])
+
+  // Navigasi smooth ke section yang diklik
   const scrollToSection = (id) => {
     if (id === 'hero') {
       gsap.to(window, { scrollTo: 0, duration: 1.2, ease: 'power3.inOut' })
       return
     }
-    
+
     const el = document.getElementById(id)
     if (el) {
-      gsap.to(window, { scrollTo: { y: el, autoKill: false }, duration: 1.2, ease: 'power3.inOut' })
+      // Gunakan offsetTop untuk mendapatkan posisi absolut yang benar
+      // terlepas dari GSAP pinning
+      const targetY = el.getBoundingClientRect().top + window.scrollY
+      gsap.to(window, {
+        scrollTo: { y: targetY, autoKill: false },
+        duration: 1.2,
+        ease: 'power3.inOut'
+      })
     }
   }
 
   return (
-    <div className="fixed right-4 sm:right-6 top-1/2 -translate-y-1/2 z-100 flex flex-col gap-5 pointer-events-auto select-none">
+    <div
+      ref={navRef}
+      className="fixed right-4 sm:right-6 top-1/2 -translate-y-1/2 z-9999 flex flex-col gap-5 pointer-events-auto select-none transition-all duration-500"
+      style={{
+        opacity: isVisible ? 1 : 0,
+        transform: `translateY(-50%) translateX(${isVisible ? '0' : '20px'})`,
+        pointerEvents: isVisible ? 'auto' : 'none',
+      }}
+    >
       {sections.map((section) => {
         const isActive = activeSection === section.id
         return (
