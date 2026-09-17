@@ -29,7 +29,7 @@ export const CHARACTERS_DATA = [
     description:
       'Anak perempuan misterius yang sering ditemui Atma di sekitar kota Loka. Ia memiliki hubungan yang sangat erat dengan kucing-kucing liar di seluruh kota.',
     hdImage: '/assets/a_space_unbound/foto/characters/Marin-Char.webp',
-    pixelSprite: '/assets/a_space_unbound/foto/characters/marin_pixel.jpg',
+    pixelSprite: '/assets/a_space_unbound/foto/characters/marin_pixel.webp',
     themeColor: '#ff9800',
   },
   {
