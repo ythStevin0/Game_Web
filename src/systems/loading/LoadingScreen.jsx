@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { gsap } from 'gsap'
 
-const gameLogo = '/assets/a_space_unbound/foto/logo/logo3.png'
+const gameLogo = '/assets/a_space_unbound/foto/logo/logo3.webp'
 
 const SEGMENTS = Array.from({ length: 14 }, (_, index) => index)
 const PARTICLES = [

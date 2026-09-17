@@ -6,7 +6,7 @@ const GALLERY_DATA = [
     category: 'KEY ARTWORK',
     title: 'A Space for the Unbound',
     description: 'Visual utama permainan yang menampilkan Atmosfer Indonesia era 90-an.',
-    image: '/assets/a_space_unbound/foto/thumnail/thumnail1.jpg',
+    image: '/assets/a_space_unbound/foto/thumnail/thumnail1.webp',
     badgeColor: '#0c71c3'
   },
   {
@@ -22,7 +22,7 @@ const GALLERY_DATA = [
     category: 'CHARACTERS',
     title: 'Warga & Sahabat Kota',
     description: 'Karakter-karakter unik dengan kisah, persahabatan, dan rahasia masing-masing.',
-    image: '/assets/a_space_unbound/foto/characters/all_chars.jpg',
+    image: '/assets/a_space_unbound/foto/characters/all_chars.webp',
     badgeColor: '#0c71c3'
   },
   {
@@ -30,7 +30,7 @@ const GALLERY_DATA = [
     category: 'SPRITE ART',
     title: 'Karakter Pixel',
     description: 'Wujud pixel art bergaya retro dari para karakter A Space for the Unbound.',
-    image: '/assets/a_space_unbound/foto/characters/all_char_pixel.jpg',
+    image: '/assets/a_space_unbound/foto/characters/all_char_pixel.webp',
     badgeColor: '#bde200'
   },
   {

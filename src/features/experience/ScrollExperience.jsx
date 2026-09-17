@@ -25,7 +25,7 @@ export const PIXEL_TRANSITION_CONFIG = {
 }
 
 const thumbnailAsset = '/assets/a_space_unbound/foto/thumnail/thumnail2.webp'
-const logoAsset = '/assets/a_space_unbound/foto/logo/logo3.png'
+const logoAsset = '/assets/a_space_unbound/foto/logo/logo3.webp'
 const gerbongAsset = '/assets/loading/gerbong.png'
 
 export default function ScrollExperience({ onEnterTown }) {

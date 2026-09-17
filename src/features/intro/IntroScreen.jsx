@@ -3,7 +3,7 @@ import { gsap } from 'gsap'
 
 // Assets in public/assets/ (accessed via URL)
 const thumbnailAsset = '/assets/a_space_unbound/foto/thumnail/thumnail2.webp'
-const logoAsset = '/assets/a_space_unbound/foto/logo/logo3.png'
+const logoAsset = '/assets/a_space_unbound/foto/logo/logo3.webp'
 const atmaPixel = '/assets/a_space_unbound/foto/characters/Atma_pixel_sprite.webp'
 
 // Assets in src/ (imported via bundler)
@@ -77,7 +77,7 @@ function HeroSection({ onStart }) {
         { autoAlpha: 0, duration: 0.5, ease: 'power2.out' }
       )
 
-      // 2. Animasi fade in untuk logo3.png selama 1 detik
+      // 2. Animasi fade in untuk logo transparan selama 1 detik
       gsap.fromTo(
         logoRef.current,
         { autoAlpha: 0, scale: 0.95, y: 10 },
