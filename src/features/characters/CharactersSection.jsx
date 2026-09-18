@@ -115,7 +115,7 @@ export function CharactersSection() {
             <div className="mt-auto pt-8 flex items-center justify-between sm:justify-start sm:gap-6">
               
               <button 
-                className="w-10 h-10 border-2 border-black bg-white flex items-center justify-center text-black shadow-[2px_2px_0px_#000] hover:bg-black hover:text-white transition-colors active:translate-y-0.5 active:translate-x-0.5 active:shadow-none"
+                className="w-12 h-12 border-2 border-black bg-white flex items-center justify-center text-black shadow-[2px_2px_0px_#000] hover:bg-black hover:text-white transition-colors active:translate-y-0.5 active:translate-x-0.5 active:shadow-none"
                 onClick={() => setActiveIndex(prev => (prev === 0 ? CHARACTERS_DATA.length - 1 : prev - 1))}
               >
                 <span className="font-['Press_Start_2P',monospace] text-xs">{'<'}</span>
@@ -145,7 +145,7 @@ export function CharactersSection() {
               </div>
 
               <button 
-                className="w-10 h-10 border-2 border-black bg-white flex items-center justify-center text-black shadow-[2px_2px_0px_#000] hover:bg-black hover:text-white transition-colors active:translate-y-0.5 active:translate-x-0.5 active:shadow-none"
+                className="w-12 h-12 border-2 border-black bg-white flex items-center justify-center text-black shadow-[2px_2px_0px_#000] hover:bg-black hover:text-white transition-colors active:translate-y-0.5 active:translate-x-0.5 active:shadow-none"
                 onClick={() => setActiveIndex(prev => (prev === CHARACTERS_DATA.length - 1 ? 0 : prev + 1))}
               >
                 <span className="font-['Press_Start_2P',monospace] text-xs">{'>'}</span>

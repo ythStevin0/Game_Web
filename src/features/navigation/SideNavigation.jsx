@@ -28,7 +28,8 @@ export function SideNavigation() {
     { id: 'hero', label: '01: HOME', color: '#0c71c3' },
     { id: 'about', label: '02: ABOUT', color: '#bde200' },
     { id: 'gallery', label: '03: GALLERY', color: '#e91e63' },
-    { id: 'characters', label: '04: CHARACTER', color: '#ff9800' }
+    { id: 'characters', label: '04: CHARACTER', color: '#ff9800' },
+    { id: 'synopsis', label: '05: LORE', color: '#f44336' }
   ]
 
   // Fungsi untuk mendeteksi section mana yang sedang aktif
@@ -53,7 +54,7 @@ export function SideNavigation() {
     setIsVisible(true)
 
     // 3. Melewati zona pin, gunakan deteksi posisi elemen (getBoundingClientRect)
-    const sectionIds = ['about', 'gallery', 'characters']
+    const sectionIds = ['about', 'gallery', 'characters', 'synopsis']
     let bestId = 'about'
     let bestDistance = Infinity
 
