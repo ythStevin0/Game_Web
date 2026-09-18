@@ -106,13 +106,27 @@ export function GallerySection() {
             </div>
           </div>
 
+          {/* PROGRESS BAR (Visual Indicator) */}
+          <div className="w-full h-1 bg-gray-200 border-b-2 border-black mb-4 relative overflow-hidden">
+            {!isPaused && (
+              <div 
+                key={activeIndex} 
+                className="absolute top-0 left-0 h-full bg-[#0c71c3]"
+                style={{ animation: 'galleryProgress 4000ms linear forwards' }}
+              />
+            )}
+            {isPaused && (
+              <div className="absolute top-0 left-0 h-full bg-red-500 w-full opacity-50" />
+            )}
+          </div>
+
           {/* IMAGE VIEWPORT */}
-          <div className="relative w-full aspect-video md:h-[60vh] border-2 border-black overflow-hidden bg-gray-100 group">
+          <div className="relative w-full aspect-video md:h-[60vh] border-2 border-black overflow-hidden bg-[#101925] group">
             
             <img 
               src={activeItem.image} 
               alt={activeItem.title} 
-              className="absolute inset-0 w-full h-full object-cover"
+              className="absolute inset-0 w-full h-full object-contain"
               style={{ imageRendering: activeItem.category.includes('SPRITE') ? 'pixelated' : 'auto' }}
             />
 
@@ -138,13 +152,13 @@ export function GallerySection() {
             {/* Left/Right Controls */}
             <button 
               onClick={prevSlide}
-              className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-[#bde200] border-2 border-black flex items-center justify-center text-black shadow-[3px_3px_0px_#000] opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white hover:-translate-x-1 active:translate-x-0"
+              className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-[#bde200] border-2 border-black flex items-center justify-center text-black shadow-[3px_3px_0px_#000] opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white hover:-translate-x-1 active:translate-x-0"
             >
               <span className="font-['Press_Start_2P',monospace] text-[10px]">◀</span>
             </button>
             <button 
               onClick={nextSlide}
-              className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-[#bde200] border-2 border-black flex items-center justify-center text-black shadow-[3px_3px_0px_#000] opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white hover:translate-x-1 active:translate-x-0"
+              className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-[#bde200] border-2 border-black flex items-center justify-center text-black shadow-[3px_3px_0px_#000] opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white hover:translate-x-1 active:translate-x-0"
             >
               <span className="font-['Press_Start_2P',monospace] text-[10px]">▶</span>
             </button>
@@ -184,6 +198,13 @@ export function GallerySection() {
         </div>
 
       </div>
+
+      <style dangerouslySetInnerHTML={{__html: `
+        @keyframes galleryProgress {
+          0% { width: 0%; }
+          100% { width: 100%; }
+        }
+      `}} />
     </section>
   )
 }

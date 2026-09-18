@@ -4,6 +4,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import GameDescriptionSection from './GameDescriptionSection'
 import { CharactersSection } from '../characters/CharactersSection'
 import { GallerySection } from '../gallery/GallerySection'
+import { RedBookSection } from '../synopsis/RedBookSection'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -311,7 +312,7 @@ export default function ScrollExperience({ onEnterTown }) {
         scrollTrigger: {
           trigger: containerRef.current,
           start: 'top top',
-          end: () => `+=${window.innerHeight * 3.0}`, // Kembalikan jarak scroll yang panjang (heavy)
+          end: () => `+=${window.innerHeight * 1.5}`, // Kurangi jarak scroll agar tidak melelahkan (scroll fatigue)
           scrub: 1.5,
           pin: true, // KUNCI! Halaman berhenti scroll secara fisik selama animasi dissolve
         },
@@ -540,6 +541,13 @@ export default function ScrollExperience({ onEnterTown }) {
         {/* CHARACTER SHOWCASE SECTION                                                */}
         {/* ========================================================================= */}
         <CharactersSection />
+
+        {/* ========================================================================= */}
+        {/* RED BOOK (SYNOPSIS) SECTION                                               */}
+        {/* ========================================================================= */}
+        <div id="synopsis">
+          <RedBookSection />
+        </div>
       </div>
     </div>
   )
