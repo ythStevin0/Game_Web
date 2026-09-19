@@ -42,7 +42,7 @@ export function SideNavigation() {
     // Animasi dissolve di ScrollExperience menggunakan GSAP pin selama 3x viewport height.
     // Kita sembunyikan sidebar SEPENUHNYA selama fase ini agar tidak tertumpuk animasi.
     // Sidebar baru akan muncul setelah animasi selesai (saat user benar-benar masuk ke konten About).
-    const pinEndThreshold = vh * 2.8
+    const pinEndThreshold = vh * 1
 
     if (window.scrollY < pinEndThreshold) {
       setActiveSection('hero')
