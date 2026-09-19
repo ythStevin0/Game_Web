@@ -318,7 +318,7 @@ function InteractiveIntro({ onEnter, onBack }) {
   }, [])
 
   const cameraPosition = room === 'gerbong'
-    ? `${50 + (position.x - 69) * 0.12}% ${80 + (position.y - 96) * 0.06}%`
+    ? `${50 + (position.x - 69) * 0.12}% ${76 + (position.y - 96) * 0.06}%`
     : '50% 50%'
 
   const cameraX = room === 'konflik' ? Math.max(0, Math.min(80, position.x - 50)) : 0
@@ -345,6 +345,7 @@ function InteractiveIntro({ onEnter, onBack }) {
             style={{
               backgroundImage: "url('/assets/loading/gerbong.png')",
               backgroundPosition: cameraPosition,
+              transform: "scale(1.15) translateY(-3%)"
             }}
           />
         ) : (
