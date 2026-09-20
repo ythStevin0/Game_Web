@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { gsap } from 'gsap'
 
 // Assets in public/assets/ (accessed via URL)
@@ -16,9 +16,116 @@ import bubbleLarangan from '../../a_space_unbound/environtment/bubble_larangan.p
 import grassForeground from '../../a_space_unbound/environtment/rumput.png'
 import { introContent } from '../../data/experience'
 
-
 const MOVEMENT_KEYS = new Set(['arrowleft', 'arrowright', 'a', 'd'])
 const NIRMALA_POSITION = { x: 30, y: 96 }
+
+// Detect touch device
+const isTouchDevice = () => 'ontouchstart' in window || navigator.maxTouchPoints > 0
+
+// Detect small screen (mobile phone, not tablet)
+const isSmallScreen = () => window.innerWidth <= 768
+
+/**
+ * RotateOverlay — Muncul saat HP dalam posisi portrait.
+ * Meminta user memutar HP ke landscape untuk gameplay.
+ */
+function RotateOverlay() {
+  const [showOverlay, setShowOverlay] = useState(false)
+
+  useEffect(() => {
+    const checkOrientation = () => {
+      // Hanya tampilkan di layar kecil (HP) yang portrait
+      if (!isSmallScreen()) {
+        setShowOverlay(false)
+        return
+      }
+      const isPortrait = window.innerHeight > window.innerWidth
+      setShowOverlay(isPortrait)
+    }
+
+    checkOrientation()
+    window.addEventListener('resize', checkOrientation)
+    window.addEventListener('orientationchange', checkOrientation)
+
+    return () => {
+      window.removeEventListener('resize', checkOrientation)
+      window.removeEventListener('orientationchange', checkOrientation)
+    }
+  }, [])
+
+  if (!showOverlay) return null
+
+  return (
+    <div className="rotate-overlay">
+      <div className="rotate-overlay__icon">📱</div>
+      <div className="rotate-overlay__text">
+        Putar HP Anda ke mode landscape untuk pengalaman terbaik
+      </div>
+      <div style={{ fontSize: '32px' }}>↻</div>
+    </div>
+  )
+}
+
+/**
+ * TouchControls — Tombol virtual on-screen untuk mobile.
+ * D-pad (kiri/kanan) + tombol aksi (E).
+ */
+function TouchControls({ onLeftStart, onLeftEnd, onRightStart, onRightEnd, onAction }) {
+  const [pressedBtn, setPressedBtn] = useState(null)
+
+  const handleTouchStart = useCallback((direction, handler) => (e) => {
+    e.preventDefault()
+    setPressedBtn(direction)
+    handler()
+  }, [])
+
+  const handleTouchEnd = useCallback((direction, handler) => (e) => {
+    e.preventDefault()
+    setPressedBtn(null)
+    handler()
+  }, [])
+
+  return (
+    <div className="touch-controls">
+      {/* D-pad: Left & Right */}
+      <div className="touch-controls__dpad">
+        <button
+          type="button"
+          className={`touch-btn ${pressedBtn === 'left' ? 'touch-btn--pressed' : ''}`}
+          onTouchStart={handleTouchStart('left', onLeftStart)}
+          onTouchEnd={handleTouchEnd('left', onLeftEnd)}
+          onTouchCancel={handleTouchEnd('left', onLeftEnd)}
+          aria-label="Gerak Kiri"
+        >
+          ◀
+        </button>
+        <button
+          type="button"
+          className={`touch-btn ${pressedBtn === 'right' ? 'touch-btn--pressed' : ''}`}
+          onTouchStart={handleTouchStart('right', onRightStart)}
+          onTouchEnd={handleTouchEnd('right', onRightEnd)}
+          onTouchCancel={handleTouchEnd('right', onRightEnd)}
+          aria-label="Gerak Kanan"
+        >
+          ▶
+        </button>
+      </div>
+
+      {/* Action Button */}
+      <div className="touch-controls__action">
+        <button
+          type="button"
+          className={`touch-btn touch-btn--action ${pressedBtn === 'action' ? 'touch-btn--pressed' : ''}`}
+          onTouchStart={(e) => { e.preventDefault(); setPressedBtn('action'); onAction() }}
+          onTouchEnd={(e) => { e.preventDefault(); setPressedBtn(null) }}
+          aria-label="Interaksi"
+        >
+          E
+        </button>
+      </div>
+    </div>
+  )
+}
 
 function DialogBubble({ children, isOpen, label, onToggle, className = '', showPrompt = false, promptImage = null }) {
   if (!isOpen) {
@@ -162,6 +269,7 @@ function InteractiveIntro({ onEnter, onBack }) {
   const [isMoving, setIsMoving] = useState(false)
   const [position, setPosition] = useState({ x: 69, y: 96, facing: 1 })
   const [dialogTarget, setDialogTarget] = useState(null)
+  const [hasTouch, setHasTouch] = useState(false)
 
   const [room, setRoomState] = useState('gerbong')
   const roomRef = useRef('gerbong')
@@ -173,8 +281,63 @@ function InteractiveIntro({ onEnter, onBack }) {
   const isTransitioningRef = useRef(false)
   const transitionOverlayRef = useRef(null)
 
+  // Detect touch device on mount
+  useEffect(() => {
+    setHasTouch(isTouchDevice())
+  }, [])
+
+  // Lock orientation to landscape on mobile
+  useEffect(() => {
+    const lockOrientation = async () => {
+      try {
+        if (screen.orientation && screen.orientation.lock) {
+          await screen.orientation.lock('landscape')
+        }
+      } catch {
+        // Orientation lock not supported (e.g. iOS Safari) — RotateOverlay handles this
+      }
+    }
+    lockOrientation()
+
+    return () => {
+      try {
+        if (screen.orientation && screen.orientation.unlock) {
+          screen.orientation.unlock()
+        }
+      } catch {
+        // Ignore unlock errors
+      }
+    }
+  }, [])
+
+  // Touch control handlers — inject into keysRef same as keyboard
+  const handleLeftStart = useCallback(() => {
+    keysRef.current.add('arrowleft')
+    setIsMoving(true)
+  }, [])
+  const handleLeftEnd = useCallback(() => {
+    keysRef.current.delete('arrowleft')
+    setIsMoving(keysRef.current.size > 0)
+  }, [])
+  const handleRightStart = useCallback(() => {
+    keysRef.current.add('arrowright')
+    setIsMoving(true)
+  }, [])
+  const handleRightEnd = useCallback(() => {
+    keysRef.current.delete('arrowright')
+    setIsMoving(keysRef.current.size > 0)
+  }, [])
   const isNearNirmala = room === 'gerbong' && Math.abs(position.x - NIRMALA_POSITION.x) < 8 && Math.abs(position.y - NIRMALA_POSITION.y) < 16
   const isNearBoard = room === 'gerbong' && Math.abs(position.x - 52) < 5
+
+  const handleTouchAction = useCallback(() => {
+    setDialogTarget((current) => {
+      if (isNearBoard) return current === 'board' ? null : 'board'
+      if (isNearNirmala) return current === 'nirmala' ? null : 'nirmala'
+      return null
+    })
+  }, [isNearBoard, isNearNirmala])
+
 
   const triggerRoomTransition = (targetRoom, newX) => {
     if (isTransitioningRef.current) return
@@ -330,6 +493,7 @@ function InteractiveIntro({ onEnter, onBack }) {
       className="relative h-dvh min-h-0 overflow-hidden bg-[#17212a] text-stone-100"
       tabIndex="-1"
     >
+      <RotateOverlay />
       <div 
         className="absolute inset-0 h-full will-change-transform"
         style={{
@@ -345,14 +509,19 @@ function InteractiveIntro({ onEnter, onBack }) {
             style={{
               backgroundImage: "url('/assets/loading/gerbong.png')",
               backgroundPosition: cameraPosition,
-              transform: "scale(1.15) translateY(-3%)"
             }}
           />
         ) : (
           <>
-            <div className="absolute inset-y-0 left-0 w-screen bg-cover bg-bottom z-10" style={{ backgroundImage: "url('/assets/loading/konflik1.png')" }} />
-            <div className="absolute inset-y-0 left-[80vw] w-screen bg-cover bg-bottom z-20" style={{ 
+            <div className="absolute inset-y-0 left-0 w-screen z-10" style={{ 
+              backgroundImage: "url('/assets/loading/konflik1.png')",
+              backgroundSize: 'cover',
+              backgroundPosition: 'center 75%',
+            }} />
+            <div className="absolute inset-y-0 left-[80vw] w-screen z-20" style={{ 
               backgroundImage: "url('/assets/loading/konflik2.png')",
+              backgroundSize: 'cover',
+              backgroundPosition: 'center 75%',
               maskImage: 'linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 15vw)',
               WebkitMaskImage: 'linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 15vw)'
             }} />
@@ -361,10 +530,9 @@ function InteractiveIntro({ onEnter, onBack }) {
         <div aria-hidden="true" className="absolute inset-0 bg-[#101925]/38" />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute bottom-0 left-0 z-25 [image-rendering:pixelated]"
+        className="pointer-events-none absolute bottom-0 left-0 z-25 [image-rendering:pixelated] h-[18vh] sm:h-[22vh] lg:h-[30vh]"
         style={{
           width: room === 'konflik' ? '117vw' : '100vw',
-          height: '30vh',
           backgroundImage: `url(${grassForeground})`,
           backgroundSize: 'auto 100%',
           backgroundRepeat: 'repeat-x',
@@ -373,43 +541,6 @@ function InteractiveIntro({ onEnter, onBack }) {
       />
 
 
-
-
-      {/* Top HUD: Location badge & Kembali ke Halaman Awal */}
-      <header className="pointer-events-auto absolute top-5 left-5 right-5 z-30 flex items-center justify-between sm:top-7 sm:left-8 sm:right-8">
-        <div className="flex items-center gap-2.5 border-2 border-black bg-white px-3.5 py-1.5 shadow-[3px_3px_0px_#000000]">
-          <span className="h-2.5 w-2.5 bg-[#bde200] border border-black shadow-[1px_1px_0px_#000]" />
-          <span className="font-['Press_Start_2P',monospace] text-[9px] tracking-wider text-black sm:text-[10px]">
-            Kota kecil, sore hari
-          </span>
-        </div>
-
-        {onBack && (
-          <button
-            type="button"
-            onClick={onBack}
-            className="cursor-pointer border-2 border-black bg-[#bde200] px-3.5 py-1.5 font-['Press_Start_2P',monospace] text-[9px] text-black shadow-[3px_3px_0px_#000000] transition-all hover:bg-[#0c71c3] hover:text-white active:translate-x-0.5 active:translate-y-0.5 active:shadow-none sm:text-[10px]"
-          >
-            ▲ KEMBALI KE HALAMAN AWAL
-          </button>
-        )}
-      </header>
-
-      {/* Bottom Controls Helper */}
-      <div className="pointer-events-none absolute bottom-4 left-1/2 z-30 -translate-x-1/2 flex items-center gap-2 border-2 border-black bg-white px-3.5 py-1.5 text-[10px] font-mono text-black shadow-[3px_3px_0px_#000000]">
-        <span className="font-['Press_Start_2P',monospace] text-[8px] bg-[#bde200] px-1.5 py-0.5 border border-black text-black">
-          KONTROL:
-        </span>
-        <kbd className="bg-stone-100 border border-black px-1 font-bold">A</kbd>
-        <kbd className="bg-stone-100 border border-black px-1 font-bold">D</kbd>
-        <span>/</span>
-        <kbd className="bg-stone-100 border border-black px-1 font-bold">◀</kbd>
-        <kbd className="bg-stone-100 border border-black px-1 font-bold">▶</kbd>
-        <span>Jalan</span>
-        <span className="mx-1">|</span>
-        <kbd className="bg-[#0c71c3] text-white border border-black px-1 font-bold">E</kbd>
-        <span>Interaksi</span>
-      </div>
 
       <section className="pointer-events-none absolute inset-0 z-20">
         {room === 'gerbong' && isNearBoard && dialogTarget !== 'board' && (
@@ -429,8 +560,7 @@ function InteractiveIntro({ onEnter, onBack }) {
               <img 
                 src={bubbleAsking} 
                 alt="Periksa papan" 
-                className="w-auto object-contain [image-rendering:pixelated] drop-shadow-md" 
-                style={{ height: '90px' }}
+                className="w-auto object-contain [image-rendering:pixelated] drop-shadow-md h-13.75 sm:h-16.25 lg:h-22.5" 
               />
             </button>
           </div>
@@ -446,9 +576,8 @@ function InteractiveIntro({ onEnter, onBack }) {
           >
             <button
               type="button"
-              className="pointer-events-auto relative flex flex-col items-center border-0 bg-transparent p-0 cursor-pointer"
+              className="pointer-events-auto relative flex flex-col items-center border-0 bg-transparent p-0 cursor-pointer w-45 h-55 sm:w-55 sm:h-67.5 lg:w-70 lg:h-85"
               onClick={() => setDialogTarget(null)}
-              style={{ width: '280px', height: '340px' }}
             >
               {/* Label Periksa with bubble_text.png */}
               <div
@@ -491,8 +620,7 @@ function InteractiveIntro({ onEnter, onBack }) {
             <img 
               src={bubbleAsking} 
               alt="Interaction marker" 
-              className="w-auto object-contain [image-rendering:pixelated] drop-shadow-md" 
-              style={{ height: '90px' }}
+              className="w-auto object-contain [image-rendering:pixelated] drop-shadow-md h-13.75 sm:h-16.25 lg:h-22.5" 
             />
           </div>
         )}
@@ -516,7 +644,7 @@ function InteractiveIntro({ onEnter, onBack }) {
               </DialogBubble>
               <img
                 alt="Nirmala pixel character"
-                className="h-75 w-auto translate-y-[7%] object-contain [image-rendering:pixelated]"
+                className="w-auto translate-y-[7%] object-contain [image-rendering:pixelated] h-42 sm:h-50 lg:h-75"
                 src={nirmalaPixel}
               />
             </div>
@@ -538,14 +666,14 @@ function InteractiveIntro({ onEnter, onBack }) {
             {isMoving ? (
               <img
                 alt="Atma running"
-                className="h-76 w-auto max-w-none object-contain [image-rendering:pixelated]"
+                className="w-auto max-w-none object-contain [image-rendering:pixelated] h-44 sm:h-52 lg:h-76"
                 src="/assets/loading/atma_lari.webp?v=7"
                 style={{ transform: `scaleX(${position.facing})` }}
               />
             ) : (
               <img
                 alt="Atma pixel character"
-                className="h-76 w-auto max-w-none object-contain [image-rendering:pixelated]"
+                className="w-auto max-w-none object-contain [image-rendering:pixelated] h-44 sm:h-52 lg:h-76"
                 src={atmaPixel}
                 style={{ transform: `scaleX(${position.facing})` }}
               />
@@ -554,6 +682,52 @@ function InteractiveIntro({ onEnter, onBack }) {
         </div>
       </section>
       </div>
+
+      {/* Top HUD: Location badge & Kembali ke Halaman Awal */}
+      <header className="pointer-events-auto absolute top-5 left-5 right-5 z-30 flex items-center justify-between sm:top-7 sm:left-8 sm:right-8">
+        <div className="flex items-center gap-2.5 border-2 border-black bg-white px-3.5 py-1.5 shadow-[3px_3px_0px_#000000]">
+          <span className="h-2.5 w-2.5 bg-[#bde200] border border-black shadow-[1px_1px_0px_#000]" />
+          <span className="font-['Press_Start_2P',monospace] text-[9px] tracking-wider text-black sm:text-[10px]">
+            Kota kecil, sore hari
+          </span>
+        </div>
+
+        {onBack && (
+          <button
+            type="button"
+            onClick={onBack}
+            className="cursor-pointer border-2 border-black bg-[#bde200] px-3.5 py-1.5 font-['Press_Start_2P',monospace] text-[9px] text-black shadow-[3px_3px_0px_#000000] transition-all hover:bg-[#0c71c3] hover:text-white active:translate-x-0.5 active:translate-y-0.5 active:shadow-none sm:text-[10px]"
+          >
+            ▲ KEMBALI KE HALAMAN AWAL
+          </button>
+        )}
+      </header>
+
+      {/* Bottom Controls Helper / Touch Controls */}
+      {hasTouch ? (
+        <TouchControls 
+          onLeftStart={handleLeftStart} 
+          onLeftEnd={handleLeftEnd} 
+          onRightStart={handleRightStart} 
+          onRightEnd={handleRightEnd} 
+          onAction={handleTouchAction} 
+        />
+      ) : (
+        <div className="pointer-events-none absolute bottom-4 left-1/2 z-30 -translate-x-1/2 hidden md:flex items-center gap-2 border-2 border-black bg-white px-3.5 py-1.5 text-[10px] font-mono text-black shadow-[3px_3px_0px_#000000]">
+          <span className="font-['Press_Start_2P',monospace] text-[8px] bg-[#bde200] px-1.5 py-0.5 border border-black text-black">
+            KONTROL:
+          </span>
+          <kbd className="bg-stone-100 border border-black px-1 font-bold">A</kbd>
+          <kbd className="bg-stone-100 border border-black px-1 font-bold">D</kbd>
+          <span>/</span>
+          <kbd className="bg-stone-100 border border-black px-1 font-bold">◀</kbd>
+          <kbd className="bg-stone-100 border border-black px-1 font-bold">▶</kbd>
+          <span>Jalan</span>
+          <span className="mx-1">|</span>
+          <kbd className="bg-[#0c71c3] text-white border border-black px-1 font-bold">E</kbd>
+          <span>Interaksi</span>
+        </div>
+      )}
 
       {/* Room Transition Overlay */}
       <div 

@@ -203,3 +203,108 @@ button {
     animation: none;
   }
 }
+
+/* ============================================= */
+/* TOUCH CONTROLS (Mobile Gameplay)              */
+/* ============================================= */
+.touch-controls {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 60;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 0 16px 20px;
+  pointer-events: none;
+}
+
+.touch-controls__dpad,
+.touch-controls__action {
+  pointer-events: auto;
+  display: flex;
+  gap: 10px;
+}
+
+.touch-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border: 3px solid #000;
+  background: rgba(255, 255, 255, 0.85);
+  color: #000;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 16px;
+  box-shadow: 3px 3px 0px #000;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  cursor: pointer;
+  transition: background 0.1s, transform 0.1s;
+}
+
+.touch-btn:active,
+.touch-btn--pressed {
+  background: #bde200;
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0px #000;
+}
+
+.touch-btn--action {
+  background: rgba(12, 113, 195, 0.85);
+  color: #fff;
+  width: 60px;
+  height: 60px;
+  font-size: 14px;
+}
+
+.touch-btn--action:active,
+.touch-btn--action.touch-btn--pressed {
+  background: #bde200;
+  color: #000;
+}
+
+/* ============================================= */
+/* ROTATE OVERLAY (Portrait → Landscape prompt)  */
+/* ============================================= */
+.rotate-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  background: #17212a;
+  color: #fff;
+}
+
+.rotate-overlay__icon {
+  font-size: 64px;
+  animation: rotate-phone 2s ease-in-out infinite;
+}
+
+.rotate-overlay__text {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 11px;
+  text-align: center;
+  line-height: 1.8;
+  color: #bde200;
+  max-width: 280px;
+}
+
+@keyframes rotate-phone {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-90deg);
+  }
+  50%, 75% {
+    transform: rotate(-90deg);
+  }
+}
