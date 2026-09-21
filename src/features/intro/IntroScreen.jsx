@@ -73,14 +73,12 @@ function RotateOverlay() {
 function TouchControls({ onLeftStart, onLeftEnd, onRightStart, onRightEnd, onAction }) {
   const [pressedBtn, setPressedBtn] = useState(null)
 
-  const handleTouchStart = useCallback((direction, handler) => (e) => {
-    e.preventDefault()
+  const handleTouchStart = useCallback((direction, handler) => () => {
     setPressedBtn(direction)
     handler()
   }, [])
 
-  const handleTouchEnd = useCallback((direction, handler) => (e) => {
-    e.preventDefault()
+  const handleTouchEnd = useCallback((direction, handler) => () => {
     setPressedBtn(null)
     handler()
   }, [])
@@ -96,6 +94,7 @@ function TouchControls({ onLeftStart, onLeftEnd, onRightStart, onRightEnd, onAct
           onTouchEnd={handleTouchEnd('left', onLeftEnd)}
           onTouchCancel={handleTouchEnd('left', onLeftEnd)}
           aria-label="Gerak Kiri"
+          style={{ touchAction: 'none' }}
         >
           ◀
         </button>
@@ -106,19 +105,22 @@ function TouchControls({ onLeftStart, onLeftEnd, onRightStart, onRightEnd, onAct
           onTouchEnd={handleTouchEnd('right', onRightEnd)}
           onTouchCancel={handleTouchEnd('right', onRightEnd)}
           aria-label="Gerak Kanan"
+          style={{ touchAction: 'none' }}
         >
           ▶
         </button>
       </div>
 
       {/* Action Button */}
-      <div className="touch-controls__action">
+      <div className="touch-controls__action flex shrink-0 pr-6 pb-2 pointer-events-auto">
         <button
           type="button"
           className={`touch-btn touch-btn--action ${pressedBtn === 'action' ? 'touch-btn--pressed' : ''}`}
-          onTouchStart={(e) => { e.preventDefault(); setPressedBtn('action'); onAction() }}
-          onTouchEnd={(e) => { e.preventDefault(); setPressedBtn(null) }}
+          onTouchStart={handleTouchStart('action', onAction)}
+          onTouchEnd={handleTouchEnd('action', () => {})}
+          onTouchCancel={handleTouchEnd('action', () => {})}
           aria-label="Interaksi"
+          style={{ touchAction: 'none' }}
         >
           E
         </button>
@@ -462,14 +464,11 @@ function InteractiveIntro({ onEnter, onBack }) {
 
         timeline
           .from('[data-hero-world]', { scale: 1.04, autoAlpha: 0, duration: 1.2 })
-          .from('[data-hero-header]', { y: -16, autoAlpha: 0, duration: 0.55 }, '-=0.7')
-          .from('[data-hero-bubble]', { autoAlpha: 0, y: 12, duration: 0.6 }, '-=0.25')
           .from('[data-hero-character-motion]', { x: 36, autoAlpha: 0, duration: 0.7 }, '-=0.4')
-          .from('[data-hero-rail]', { y: 14, autoAlpha: 0, duration: 0.5 }, '-=0.35')
       })
 
       media.add('(prefers-reduced-motion: reduce)', () => {
-        gsap.set('[data-hero-world], [data-hero-header], [data-hero-bubble], [data-hero-character-motion], [data-hero-rail]', {
+        gsap.set('[data-hero-world], [data-hero-character-motion]', {
           clearProps: 'all',
         })
       })
@@ -522,8 +521,8 @@ function InteractiveIntro({ onEnter, onBack }) {
               backgroundImage: "url('/assets/loading/konflik2.png')",
               backgroundSize: 'cover',
               backgroundPosition: 'center 75%',
-              maskImage: 'linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 15vw)',
-              WebkitMaskImage: 'linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 15vw)'
+              maskImage: 'linear-gradient(to right, transparent 0%, black 20vw)',
+              WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 20vw)'
             }} />
           </>
         )}
@@ -704,7 +703,7 @@ function InteractiveIntro({ onEnter, onBack }) {
       </header>
 
       {/* Bottom Controls Helper / Touch Controls */}
-      {hasTouch ? (
+      <div className="md:hidden">
         <TouchControls 
           onLeftStart={handleLeftStart} 
           onLeftEnd={handleLeftEnd} 
@@ -712,22 +711,22 @@ function InteractiveIntro({ onEnter, onBack }) {
           onRightEnd={handleRightEnd} 
           onAction={handleTouchAction} 
         />
-      ) : (
-        <div className="pointer-events-none absolute bottom-4 left-1/2 z-30 -translate-x-1/2 hidden md:flex items-center gap-2 border-2 border-black bg-white px-3.5 py-1.5 text-[10px] font-mono text-black shadow-[3px_3px_0px_#000000]">
-          <span className="font-['Press_Start_2P',monospace] text-[8px] bg-[#bde200] px-1.5 py-0.5 border border-black text-black">
-            KONTROL:
-          </span>
-          <kbd className="bg-stone-100 border border-black px-1 font-bold">A</kbd>
-          <kbd className="bg-stone-100 border border-black px-1 font-bold">D</kbd>
-          <span>/</span>
-          <kbd className="bg-stone-100 border border-black px-1 font-bold">◀</kbd>
-          <kbd className="bg-stone-100 border border-black px-1 font-bold">▶</kbd>
-          <span>Jalan</span>
-          <span className="mx-1">|</span>
-          <kbd className="bg-[#0c71c3] text-white border border-black px-1 font-bold">E</kbd>
-          <span>Interaksi</span>
-        </div>
-      )}
+      </div>
+      
+      <div className="pointer-events-none absolute bottom-4 left-1/2 z-30 -translate-x-1/2 hidden md:flex items-center gap-2 border-2 border-black bg-white px-3.5 py-1.5 text-[10px] font-mono text-black shadow-[3px_3px_0px_#000000]">
+        <span className="font-['Press_Start_2P',monospace] text-[8px] bg-[#bde200] px-1.5 py-0.5 border border-black text-black">
+          KONTROL:
+        </span>
+        <kbd className="bg-stone-100 border border-black px-1 font-bold">A</kbd>
+        <kbd className="bg-stone-100 border border-black px-1 font-bold">D</kbd>
+        <span>/</span>
+        <kbd className="bg-stone-100 border border-black px-1 font-bold">◀</kbd>
+        <kbd className="bg-stone-100 border border-black px-1 font-bold">▶</kbd>
+        <span>Jalan</span>
+        <span className="mx-1">|</span>
+        <kbd className="bg-[#0c71c3] text-white border border-black px-1 font-bold">E</kbd>
+        <span>Interaksi</span>
+      </div>
 
       {/* Room Transition Overlay */}
       <div 

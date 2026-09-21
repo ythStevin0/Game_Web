@@ -43,6 +43,7 @@ export default function ScrollExperience({ onEnterTown }) {
 
   const [imagesLoaded, setImagesLoaded] = useState(false)
   const [isEnteringTown, setIsEnteringTown] = useState(false)
+  const [viewportHeight, setViewportHeight] = useState('100vh')
   const isEnteringRef = useRef(false)
 
   // Cache data partikel piksel untuk performa tinggi
@@ -224,6 +225,7 @@ export default function ScrollExperience({ onEnterTown }) {
   // 3. Listener Resize Layar
   useEffect(() => {
     const handleResize = () => {
+      setViewportHeight(`${window.innerHeight}px`)
       const imgThumbnail = new Image()
       const imgLogo = new Image()
       imgThumbnail.src = thumbnailAsset
@@ -237,6 +239,8 @@ export default function ScrollExperience({ onEnterTown }) {
       imgLogo.onload = onLoad
     }
 
+    // Set initial height
+    setViewportHeight(`${window.innerHeight}px`)
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
   }, [])
@@ -428,7 +432,7 @@ export default function ScrollExperience({ onEnterTown }) {
       className="relative bg-black font-sans text-white overflow-hidden selection:bg-[#ff9800] selection:text-black"
     >
       {/* Anchor khusus untuk tracking seksi Hero tanpa terpengaruh GSAP Pin */}
-      <div id="hero-anchor" className="absolute top-0 left-0 w-full h-screen pointer-events-none" />
+      <div id="hero-anchor" className="absolute top-0 left-0 w-full pointer-events-none" style={{ height: viewportHeight }} />
 
       {/* ========================================================================= */}
       {/* LAYER ATAS (z-index: 2 / z-20 - SECTION HERO: GAMBAR UTAMA + HTML5 CANVAS) */}
@@ -436,7 +440,8 @@ export default function ScrollExperience({ onEnterTown }) {
       <div
         id="hero"
         ref={pinWrapperRef}
-        className="absolute top-0 left-0 h-screen w-full overflow-hidden bg-transparent z-20 pointer-events-none"
+        className="absolute top-0 left-0 w-full overflow-hidden bg-transparent z-20 pointer-events-none"
+        style={{ height: viewportHeight }}
       >
         {/* Preview Town saat tombol Enter the Town ditekan */}
         {isEnteringTown && (

@@ -393,12 +393,12 @@ export const RedBookSection = () => {
   )
 
   return (
-    <section className="relative w-full min-h-screen bg-[#6cb4d4] py-12 px-4 md:px-8 flex flex-col items-center justify-center overflow-hidden" style={{ imageRendering: 'pixelated' }}>
+    <section className="relative w-full min-h-screen bg-[#6cb4d4] py-12 px-4 md:px-8 flex flex-col items-center justify-center overflow-x-auto overflow-y-visible" style={{ imageRendering: 'pixelated' }}>
       
       {/* Pixelated Grass Background */}
       <div className="absolute inset-0 bg-[url('/assets/a_space_unbound/foto/thumnail/thumnail1.webp')] bg-cover bg-center opacity-30 mix-blend-overlay pointer-events-none" style={{ imageRendering: 'pixelated' }} />
 
-      <div className="relative z-10 max-w-3xl w-full mx-auto flex flex-col items-center perspective-[2000px]">
+      <div className="relative z-10 w-3xl min-w-3xl mx-auto flex flex-col items-center perspective-[2000px]">
         
         {/* TABS */}
         <div className={`flex gap-1 -mb-1 z-20 transition-all duration-700 w-full px-6 md:px-10 ${isOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
@@ -425,7 +425,7 @@ export const RedBookSection = () => {
         
         {/* THE 3D BOOK - Reduced size */}
         <div 
-          className="relative w-full max-w-3xl h-95 md:h-120 flex transition-transform duration-1000 ease-in-out filter drop-shadow-[10px_10px_0_rgba(0,0,0,0.3)]"
+          className="relative w-full h-120 flex transition-transform duration-1000 ease-in-out filter drop-shadow-[10px_10px_0_rgba(0,0,0,0.3)]"
           style={{
             transformStyle: 'preserve-3d',
             transform: isOpen ? 'translateX(0)' : 'translateX(-25%)',
@@ -493,7 +493,7 @@ export const RedBookSection = () => {
               </div>
 
               {/* Pixel-Art Label with ATMA & REИ */}
-              <div className="absolute top-[30%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-52 md:w-60 transform -rotate-3 z-10 drop-shadow-[3px_3px_0_rgba(0,0,0,0.2)]">
+              <div className="absolute top-[30%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[85%] max-w-52 md:max-w-60 transform -rotate-3 z-10 drop-shadow-[3px_3px_0_rgba(0,0,0,0.2)]">
                 <img 
                   src="/assets/a_space_unbound/foto/ui/tulisan_coverbook.png" 
                   alt="ATMA & REИ" 
