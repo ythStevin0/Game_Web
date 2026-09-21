@@ -71,10 +71,10 @@ export function CharactersSection() {
           <div className="relative z-20 w-full md:w-1/2 flex flex-col justify-center py-6 md:pr-12">
             
             {/* TOP BAR: SECTION BADGE (Moved here so its bottom border doesn't cross the character) */}
-            <div className="mb-8 flex items-center justify-between border-b-2 border-black pb-4 z-20">
-              <div className="flex items-center gap-2.5">
-                <span className="inline-block h-3.5 w-3.5 bg-[#ff9800] border-2 border-black shadow-[2px_2px_0px_#000]" />
-                <span className="border-2 border-black bg-[#ff9800] px-3 py-1 font-['Press_Start_2P',monospace] text-[10px] tracking-wider text-black shadow-[2px_2px_0px_#000000] sm:text-xs">
+            <div className="mb-6 sm:mb-8 flex items-center justify-between border-b-2 border-black pb-3 sm:pb-4 z-20">
+              <div className="flex items-center gap-2">
+                <span className="hidden sm:inline-block h-3.5 w-3.5 bg-[#ff9800] border-2 border-black shadow-[2px_2px_0px_#000]" />
+                <span className="border-2 border-black bg-[#ff9800] px-2 py-1 font-['Press_Start_2P',monospace] text-[8px] tracking-wider text-black shadow-[2px_2px_0px_#000000] sm:px-3 sm:text-[10px] md:text-xs">
                   ■ SECTION // 03: CHARACTER SHOWCASE
                 </span>
               </div>
@@ -93,7 +93,7 @@ export function CharactersSection() {
               </div>
 
               {/* Header: Name */}
-              <h2 className="text-5xl md:text-6xl lg:text-7xl font-black uppercase tracking-tight text-black mb-6 drop-shadow-md" style={{ fontFamily: 'sans-serif' }}>
+              <h2 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black uppercase tracking-tight text-black mb-4 sm:mb-6 drop-shadow-md" style={{ fontFamily: 'sans-serif' }}>
                 {activeChar.name}
               </h2>
 
@@ -106,29 +106,29 @@ export function CharactersSection() {
               </div>
 
               {/* Description Paragraph */}
-              <p className="text-sm sm:text-base text-gray-700 leading-relaxed mb-12 max-w-lg">
+              <p className="text-sm sm:text-base text-gray-700 leading-relaxed mb-6 sm:mb-12 max-w-lg">
                 {activeChar.description}
               </p>
             </div>
 
             {/* AVATAR NAVIGATION MENU (Retro Style) */}
-            <div className="mt-auto pt-8 flex items-center justify-between sm:justify-start sm:gap-6">
+            <div className="mt-auto pt-4 sm:pt-8 flex items-center justify-between sm:justify-start sm:gap-4 md:gap-6">
               
               <button 
-                className="w-12 h-12 border-2 border-black bg-white flex items-center justify-center text-black shadow-[2px_2px_0px_#000] hover:bg-black hover:text-white transition-colors active:translate-y-0.5 active:translate-x-0.5 active:shadow-none"
+                className="w-9 h-9 sm:w-12 sm:h-12 border-2 border-black bg-white flex items-center justify-center text-black shadow-[2px_2px_0px_#000] hover:bg-black hover:text-white transition-colors active:translate-y-0.5 active:translate-x-0.5 active:shadow-none shrink-0"
                 onClick={() => setActiveIndex(prev => (prev === 0 ? CHARACTERS_DATA.length - 1 : prev - 1))}
               >
-                <span className="font-['Press_Start_2P',monospace] text-xs">{'<'}</span>
+                <span className="font-['Press_Start_2P',monospace] text-[10px] sm:text-xs">{'<'}</span>
               </button>
 
-              <div className="flex gap-3">
+              <div className="flex gap-1.5 sm:gap-2 md:gap-3">
                 {CHARACTERS_DATA.map((char, index) => {
                   const isActive = index === activeIndex;
                   return (
                     <button
                       key={char.id}
                       onClick={() => setActiveIndex(index)}
-                      className={`relative w-12 h-12 rounded-none border-2 border-black overflow-hidden transition-all duration-300 ${
+                      className={`relative w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-none border-2 border-black overflow-hidden transition-all duration-300 ${
                         isActive ? 'scale-110 shadow-[3px_3px_0px_#000] z-10' : 'opacity-60 hover:opacity-100'
                       }`}
                       style={{ backgroundColor: isActive ? char.themeColor : '#fff' }}
@@ -145,17 +145,17 @@ export function CharactersSection() {
               </div>
 
               <button 
-                className="w-12 h-12 border-2 border-black bg-white flex items-center justify-center text-black shadow-[2px_2px_0px_#000] hover:bg-black hover:text-white transition-colors active:translate-y-0.5 active:translate-x-0.5 active:shadow-none"
+                className="w-9 h-9 sm:w-12 sm:h-12 border-2 border-black bg-white flex items-center justify-center text-black shadow-[2px_2px_0px_#000] hover:bg-black hover:text-white transition-colors active:translate-y-0.5 active:translate-x-0.5 active:shadow-none shrink-0"
                 onClick={() => setActiveIndex(prev => (prev === CHARACTERS_DATA.length - 1 ? 0 : prev + 1))}
               >
-                <span className="font-['Press_Start_2P',monospace] text-xs">{'>'}</span>
+                <span className="font-['Press_Start_2P',monospace] text-[10px] sm:text-xs">{'>'}</span>
               </button>
 
             </div>
           </div>
 
           {/* RIGHT CONTENT: HD / PIXEL CHARACTER ARTWORK */}
-          <div className="relative z-10 w-full md:w-1/2 h-[50vh] md:h-auto overflow-visible pointer-events-none">
+          <div className="relative z-10 w-full md:w-1/2 h-[45vh] sm:h-[50vh] md:h-auto overflow-visible pointer-events-none">
             
             <div ref={imageRef} className="absolute inset-0 flex justify-center items-end px-4 overflow-visible">
               {isPixelMode ? (
@@ -178,7 +178,7 @@ export function CharactersSection() {
             <div 
               ref={pixelRef}
               onClick={() => setIsPixelMode(!isPixelMode)}
-              className="absolute bottom-6 right-0 md:bottom-0 md:right-8 w-16 h-16 border-4 border-black bg-white flex flex-col items-center justify-center text-black shadow-[4px_4px_0px_#000] cursor-pointer hover:bg-gray-100 hover:-translate-y-1 transition-transform z-30 pointer-events-auto overflow-hidden"
+              className="absolute bottom-6 right-0 md:bottom-0 md:right-8 w-12 h-12 sm:w-16 sm:h-16 border-3 sm:border-4 border-black bg-white flex flex-col items-center justify-center text-black shadow-[3px_3px_0px_#000] sm:shadow-[4px_4px_0px_#000] cursor-pointer hover:bg-gray-100 hover:-translate-y-1 transition-transform z-30 pointer-events-auto overflow-hidden"
               title={isPixelMode ? "Switch to HD" : "Switch to 2D"}
             >
               {isPixelMode ? (

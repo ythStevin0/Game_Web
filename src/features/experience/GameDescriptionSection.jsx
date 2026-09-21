@@ -23,9 +23,9 @@ export default function GameDescriptionSection({ onScrollToTop }) {
         {/* TOP BAR: SECTION BADGE & RETURN BUTTON                                    */}
         {/* ========================================================================= */}
         <div className="about-anim-header mb-8 flex flex-wrap items-center justify-between gap-3 border-b-2 border-black pb-4">
-          <div className="flex items-center gap-2.5">
-            <span className="inline-block h-3.5 w-3.5 bg-[#bde200] border-2 border-black shadow-[2px_2px_0px_#000]" />
-            <span className="border-2 border-black bg-[#bde200] px-3 py-1 font-['Press_Start_2P',monospace] text-[10px] tracking-wider text-black shadow-[2px_2px_0px_#000000] sm:text-xs">
+          <div className="flex items-center gap-2">
+            <span className="hidden sm:inline-block h-3.5 w-3.5 bg-[#bde200] border-2 border-black shadow-[2px_2px_0px_#000]" />
+            <span className="border-2 border-black bg-[#bde200] px-2 py-1 font-['Press_Start_2P',monospace] text-[8px] tracking-wider text-black shadow-[2px_2px_0px_#000000] sm:px-3 sm:text-[10px] md:text-xs">
               ■ SECTION // 02: ABOUT THE GAME
             </span>
           </div>
@@ -34,10 +34,11 @@ export default function GameDescriptionSection({ onScrollToTop }) {
             <button
               type="button"
               onClick={onScrollToTop}
-              className="inline-flex cursor-pointer items-center gap-2 border-2 border-black bg-white px-3.5 py-1.5 font-['Press_Start_2P',monospace] text-[10px] text-black shadow-[3px_3px_0px_#000000] transition-all hover:bg-[#0c71c3] hover:text-white active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
+              className="inline-flex cursor-pointer items-center gap-1.5 border-2 border-black bg-white px-2.5 py-1 font-['Press_Start_2P',monospace] text-[8px] text-black shadow-[3px_3px_0px_#000000] transition-all hover:bg-[#0c71c3] hover:text-white active:translate-x-0.5 active:translate-y-0.5 active:shadow-none sm:px-3.5 sm:py-1.5 sm:text-[10px] sm:gap-2"
             >
               <span className="text-[#0c71c3] group-hover:text-white">▲</span>
-              <span>KEMBALI KE HALAMAN AWAL</span>
+              <span className="hidden sm:inline">KEMBALI KE HALAMAN AWAL</span>
+              <span className="sm:hidden">KEMBALI</span>
             </button>
           )}
         </div>
@@ -192,78 +193,80 @@ export default function GameDescriptionSection({ onScrollToTop }) {
           {/* Retro Pixel Badges & Platform Row */}
           <div className="about-anim-badges flex w-full flex-col items-center">
             {/* Retro Pixel Badges: 90s Nostalgia, Spacedive Magic, & Cats */}
-            <div className="mt-6 flex flex-wrap items-center justify-center gap-3.5">
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-2 sm:gap-3.5">
               {/* Feature 1: 90s Nostalgia */}
-              <div className="flex items-center gap-2 border-2 border-black bg-white px-3 py-1.5 shadow-[3px_3px_0px_#000000] transition hover:bg-[#bde200]">
-                <span className="border border-black bg-[#bde200] px-1.5 py-0.5 font-['Press_Start_2P',monospace] text-[8px] text-black">
+              <div className="flex items-center gap-1.5 border-2 border-black bg-white px-2 py-1 shadow-[2px_2px_0px_#000000] transition hover:bg-[#bde200] sm:px-3 sm:py-1.5 sm:gap-2 sm:shadow-[3px_3px_0px_#000000]">
+                <span className="border border-black bg-[#bde200] px-1 py-0.5 font-['Press_Start_2P',monospace] text-[7px] text-black sm:px-1.5 sm:text-[8px]">
                   90s
                 </span>
-                <span className="font-['Press_Start_2P',monospace] text-[8px] sm:text-[9px] text-black tracking-wide">
+                <span className="font-['Press_Start_2P',monospace] text-[7px] sm:text-[8px] md:text-[9px] text-black tracking-wide">
                   NOSTALGIA INDONESIA
                 </span>
               </div>
 
               {/* Feature 2: Spacedive */}
-              <div className="flex items-center gap-2 border-2 border-black bg-white px-3 py-1.5 shadow-[3px_3px_0px_#000000] transition hover:bg-[#0c71c3] hover:text-white group">
-                <span className="border border-black bg-[#0c71c3] px-1.5 py-0.5 font-['Press_Start_2P',monospace] text-[8px] text-white">
+              <div className="flex items-center gap-1.5 border-2 border-black bg-white px-2 py-1 shadow-[2px_2px_0px_#000000] transition hover:bg-[#0c71c3] hover:text-white group sm:px-3 sm:py-1.5 sm:gap-2 sm:shadow-[3px_3px_0px_#000000]">
+                <span className="border border-black bg-[#0c71c3] px-1 py-0.5 font-['Press_Start_2P',monospace] text-[7px] text-white sm:px-1.5 sm:text-[8px]">
                   MAGIS
                 </span>
-                <span className="font-['Press_Start_2P',monospace] text-[8px] sm:text-[9px] text-black tracking-wide group-hover:text-white">
+                <span className="font-['Press_Start_2P',monospace] text-[7px] sm:text-[8px] md:text-[9px] text-black tracking-wide group-hover:text-white">
                   SPACEDIVE ABILITY
                 </span>
               </div>
 
               {/* Feature 3: Pet The Cats (Iconic ASFTU Lore) */}
-              <div className="flex items-center gap-2 border-2 border-black bg-white px-3 py-1.5 shadow-[3px_3px_0px_#000000] transition hover:bg-[#bde200]">
-                <span className="border border-black bg-[#bde200] px-1.5 py-0.5 font-['Press_Start_2P',monospace] text-[8px] text-black">
+              <div className="flex items-center gap-1.5 border-2 border-black bg-white px-2 py-1 shadow-[2px_2px_0px_#000000] transition hover:bg-[#bde200] sm:px-3 sm:py-1.5 sm:gap-2 sm:shadow-[3px_3px_0px_#000000]">
+                <span className="border border-black bg-[#bde200] px-1 py-0.5 font-['Press_Start_2P',monospace] text-[7px] text-black sm:px-1.5 sm:text-[8px]">
                   🐱
                 </span>
-                <span className="font-['Press_Start_2P',monospace] text-[8px] sm:text-[9px] text-black tracking-wide">
+                <span className="font-['Press_Start_2P',monospace] text-[7px] sm:text-[8px] md:text-[9px] text-black tracking-wide">
                   PET ALL THE CATS
                 </span>
               </div>
             </div>
 
             {/* Platform Availability Row (Pixel Cartridges) */}
-            <div className="mt-5 flex flex-wrap items-center justify-center gap-2.5 pt-2">
-              <span className="mr-1 font-['Press_Start_2P',monospace] text-[8px] sm:text-[9px] text-stone-600">
+            <div className="mt-5 flex flex-col items-center gap-2 pt-2 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-2.5">
+              <span className="font-['Press_Start_2P',monospace] text-[8px] sm:text-[9px] text-stone-600">
                 AVAILABLE ON:
               </span>
-              <div
-                className="flex h-8 items-center border-2 border-black bg-white px-2.5 py-0.5 shadow-[2px_2px_0px_#000000] transition hover:bg-[#bde200]"
-                title="Steam"
-              >
-                <img src={steamLogo} alt="Steam" className="h-4 w-auto object-contain" />
-              </div>
-              <div
-                className="flex h-8 items-center border-2 border-black bg-white px-2.5 py-0.5 shadow-[2px_2px_0px_#000000] transition hover:bg-[#bde200]"
-                title="Nintendo Switch"
-              >
-                <img src={switchLogo} alt="Nintendo Switch" className="h-4 w-auto object-contain" />
-              </div>
-              <div
-                className="flex h-8 items-center border-2 border-black bg-white px-2.5 py-0.5 shadow-[2px_2px_0px_#000000] transition hover:bg-[#bde200]"
-                title="PlayStation 5"
-              >
-                <img src={ps5Logo} alt="PS5" className="h-4 w-auto object-contain" />
-              </div>
-              <div
-                className="flex h-8 items-center border-2 border-black bg-white px-2.5 py-0.5 shadow-[2px_2px_0px_#000000] transition hover:bg-[#bde200]"
-                title="PlayStation 4"
-              >
-                <img src={ps4Logo} alt="PS4" className="h-3.5 w-auto object-contain" />
-              </div>
-              <div
-                className="flex h-8 items-center border-2 border-black bg-white px-2.5 py-0.5 shadow-[2px_2px_0px_#000000] transition hover:bg-[#bde200]"
-                title="Xbox"
-              >
-                <img src={xboxLogo} alt="Xbox" className="h-4 w-auto object-contain" />
-              </div>
-              <div
-                className="flex h-8 items-center border-2 border-black bg-white px-2.5 py-0.5 shadow-[2px_2px_0px_#000000] transition hover:bg-[#bde200]"
-                title="Epic Games"
-              >
-                <img src={epicLogo} alt="Epic Games" className="h-4 w-auto object-contain" />
+              <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2.5">
+                <div
+                  className="flex h-7 items-center border-2 border-black bg-white px-2 py-0.5 shadow-[2px_2px_0px_#000000] transition hover:bg-[#bde200] sm:h-8 sm:px-2.5"
+                  title="Steam"
+                >
+                  <img src={steamLogo} alt="Steam" className="h-3.5 w-auto object-contain sm:h-4" />
+                </div>
+                <div
+                  className="flex h-7 items-center border-2 border-black bg-white px-2 py-0.5 shadow-[2px_2px_0px_#000000] transition hover:bg-[#bde200] sm:h-8 sm:px-2.5"
+                  title="Nintendo Switch"
+                >
+                  <img src={switchLogo} alt="Nintendo Switch" className="h-3.5 w-auto object-contain sm:h-4" />
+                </div>
+                <div
+                  className="flex h-7 items-center border-2 border-black bg-white px-2 py-0.5 shadow-[2px_2px_0px_#000000] transition hover:bg-[#bde200] sm:h-8 sm:px-2.5"
+                  title="PlayStation 5"
+                >
+                  <img src={ps5Logo} alt="PS5" className="h-3.5 w-auto object-contain sm:h-4" />
+                </div>
+                <div
+                  className="flex h-7 items-center border-2 border-black bg-white px-2 py-0.5 shadow-[2px_2px_0px_#000000] transition hover:bg-[#bde200] sm:h-8 sm:px-2.5"
+                  title="PlayStation 4"
+                >
+                  <img src={ps4Logo} alt="PS4" className="h-3 w-auto object-contain sm:h-3.5" />
+                </div>
+                <div
+                  className="flex h-7 items-center border-2 border-black bg-white px-2 py-0.5 shadow-[2px_2px_0px_#000000] transition hover:bg-[#bde200] sm:h-8 sm:px-2.5"
+                  title="Xbox"
+                >
+                  <img src={xboxLogo} alt="Xbox" className="h-3.5 w-auto object-contain sm:h-4" />
+                </div>
+                <div
+                  className="flex h-7 items-center border-2 border-black bg-white px-2 py-0.5 shadow-[2px_2px_0px_#000000] transition hover:bg-[#bde200] sm:h-8 sm:px-2.5"
+                  title="Epic Games"
+                >
+                  <img src={epicLogo} alt="Epic Games" className="h-3.5 w-auto object-contain sm:h-4" />
+                </div>
               </div>
             </div>
           </div>

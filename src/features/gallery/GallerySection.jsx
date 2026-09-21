@@ -76,32 +76,33 @@ export function GallerySection() {
       <div className="mx-auto max-w-6xl w-full">
         
         {/* GALERI MAIN CONTAINER */}
-        <div className="border-[3px] border-black bg-white shadow-[8px_8px_0px_#000] p-4 md:p-6 mb-6 relative">
+        <div className="border-[3px] border-black bg-white shadow-[4px_4px_0px_#000] p-3 sm:p-4 md:p-6 mb-6 relative sm:shadow-[8px_8px_0px_#000]">
           
           {/* HEADER TOP BAR */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 border-b-2 border-black pb-4 gap-4">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3 sm:mb-4 border-b-2 border-black pb-3 sm:pb-4 gap-2 sm:gap-4">
             
             {/* Title Badges */}
-            <div className="flex items-center gap-3 font-['Press_Start_2P',monospace] text-[10px] md:text-xs">
-              <span className="bg-[#bde200] border-2 border-black px-3 py-1.5 shadow-[2px_2px_0px_#000]">ART GALLERY</span>
+            <div className="flex items-center gap-2 sm:gap-3 font-['Press_Start_2P',monospace] text-[8px] sm:text-[10px] md:text-xs">
+              <span className="bg-[#bde200] border-2 border-black px-2 py-1 shadow-[2px_2px_0px_#000] sm:px-3 sm:py-1.5">ART GALLERY</span>
               <span className="hidden sm:inline">//</span>
-              <span className="bg-[#0c71c3] text-white border-2 border-black px-3 py-1.5 shadow-[2px_2px_0px_#000]">{activeItem.category}</span>
+              <span className="bg-[#0c71c3] text-white border-2 border-black px-2 py-1 shadow-[2px_2px_0px_#000] sm:px-3 sm:py-1.5">{activeItem.category}</span>
             </div>
 
             {/* Slide Info & Pause */}
-            <div className="flex items-center gap-4 font-['Press_Start_2P',monospace] text-[9px] md:text-[10px]">
-              <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 sm:gap-4 font-['Press_Start_2P',monospace] text-[8px] sm:text-[9px] md:text-[10px]">
+              <div className="flex items-center gap-1.5 sm:gap-2">
                 <span>SLIDE</span>
-                <span className="bg-[#bde200] border border-black px-2 py-1">{String(activeIndex + 1).padStart(2, '0')}</span>
+                <span className="bg-[#bde200] border border-black px-1.5 py-0.5 sm:px-2 sm:py-1">{String(activeIndex + 1).padStart(2, '0')}</span>
                 <span>/ {String(GALLERY_DATA.length).padStart(2, '0')}</span>
               </div>
               <span>|</span>
               <button 
                 onClick={() => setIsPaused(!isPaused)}
-                className={`flex items-center gap-2 hover:opacity-70 transition-opacity ${isPaused ? 'text-red-500' : 'text-gray-500'}`}
+                className={`flex items-center gap-1.5 sm:gap-2 hover:opacity-70 transition-opacity ${isPaused ? 'text-red-500' : 'text-gray-500'}`}
               >
                 <div className={`w-2 h-2 ${isPaused ? 'bg-red-500' : 'bg-gray-500'}`}></div>
-                {isPaused ? 'PAUSED' : 'PLAYING'}
+                <span className="hidden sm:inline">{isPaused ? 'PAUSED' : 'PLAYING'}</span>
+                <span className="sm:hidden">{isPaused ? '⏸' : '▶'}</span>
               </button>
             </div>
           </div>
@@ -121,7 +122,7 @@ export function GallerySection() {
           </div>
 
           {/* IMAGE VIEWPORT */}
-          <div className="relative w-full aspect-video md:h-[60vh] border-2 border-black overflow-hidden bg-[#101925] group">
+          <div className="relative w-full aspect-video md:h-[60vh] border-2 border-black overflow-hidden bg-[#101925] group touch-manipulation">
             
             <img 
               src={activeItem.image} 
@@ -152,22 +153,22 @@ export function GallerySection() {
             {/* Left/Right Controls */}
             <button 
               onClick={prevSlide}
-              className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-[#bde200] border-2 border-black flex items-center justify-center text-black shadow-[3px_3px_0px_#000] opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white hover:-translate-x-1 active:translate-x-0"
+              className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-9 h-9 sm:w-12 sm:h-12 bg-[#bde200] border-2 border-black flex items-center justify-center text-black shadow-[2px_2px_0px_#000] sm:shadow-[3px_3px_0px_#000] opacity-70 sm:opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white hover:-translate-x-1 active:translate-x-0"
             >
-              <span className="font-['Press_Start_2P',monospace] text-[10px]">◀</span>
+              <span className="font-['Press_Start_2P',monospace] text-[8px] sm:text-[10px]">◀</span>
             </button>
             <button 
               onClick={nextSlide}
-              className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-[#bde200] border-2 border-black flex items-center justify-center text-black shadow-[3px_3px_0px_#000] opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white hover:translate-x-1 active:translate-x-0"
+              className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-9 h-9 sm:w-12 sm:h-12 bg-[#bde200] border-2 border-black flex items-center justify-center text-black shadow-[2px_2px_0px_#000] sm:shadow-[3px_3px_0px_#000] opacity-70 sm:opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white hover:translate-x-1 active:translate-x-0"
             >
-              <span className="font-['Press_Start_2P',monospace] text-[10px]">▶</span>
+              <span className="font-['Press_Start_2P',monospace] text-[8px] sm:text-[10px]">▶</span>
             </button>
 
           </div>
         </div>
 
         {/* THUMBNAILS ROW */}
-        <div className="flex gap-2 md:gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x">
+        <div className="flex gap-1.5 sm:gap-2 md:gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x -mx-1 px-1">
           {GALLERY_DATA.map((item, index) => {
             const isActive = index === activeIndex
             return (
@@ -177,8 +178,8 @@ export function GallerySection() {
                   setActiveIndex(index)
                   setIsPaused(true)
                 }}
-                className={`relative shrink-0 w-24 h-16 md:w-40 md:h-24 border-[3px] border-black snap-start transition-all duration-300 ${
-                  isActive ? 'shadow-[4px_4px_0px_#0c71c3] -translate-y-1 border-[#0c71c3]' : 'opacity-60 hover:opacity-100 hover:shadow-[4px_4px_0px_#000]'
+                className={`relative shrink-0 w-20 h-14 sm:w-24 sm:h-16 md:w-40 md:h-24 border-2 sm:border-[3px] border-black snap-start transition-all duration-300 ${
+                  isActive ? 'shadow-[3px_3px_0px_#0c71c3] sm:shadow-[4px_4px_0px_#0c71c3] -translate-y-1 border-[#0c71c3]' : 'opacity-60 hover:opacity-100 hover:shadow-[4px_4px_0px_#000]'
                 }`}
               >
                 {/* Thumb Header */}

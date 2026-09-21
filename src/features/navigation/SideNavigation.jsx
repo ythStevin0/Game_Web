@@ -130,7 +130,7 @@ export function SideNavigation() {
   return (
     <div
       ref={navRef}
-      className="fixed right-4 sm:right-6 top-1/2 -translate-y-1/2 z-9999 flex flex-col gap-5 pointer-events-auto select-none transition-all duration-500"
+      className="fixed right-2 sm:right-4 md:right-6 top-1/2 -translate-y-1/2 z-9999 flex flex-col gap-3 sm:gap-5 pointer-events-auto select-none transition-all duration-500"
       style={{
         opacity: isVisible ? 1 : 0,
         transform: `translateY(-50%) translateX(${isVisible ? '0' : '20px'})`,
@@ -142,8 +142,8 @@ export function SideNavigation() {
         return (
           <div key={section.id} className="group relative flex items-center justify-end">
             
-            {/* Tooltip (Muncul Saat di Hover) */}
-            <div className="absolute right-8 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+            {/* Tooltip (Muncul Saat di Hover — hidden di mobile kecil) */}
+            <div className="absolute right-8 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none hidden sm:block">
               <div className="border-2 border-black bg-white px-3 py-1.5 font-['Press_Start_2P',monospace] text-[8px] sm:text-[10px] text-black shadow-[3px_3px_0px_#000] whitespace-nowrap">
                 {section.label}
               </div>
@@ -152,8 +152,8 @@ export function SideNavigation() {
             {/* Kotak Navigasi (Pixel Style) */}
             <button
               onClick={() => scrollToSection(section.id)}
-              className={`w-4 h-4 sm:w-5 sm:h-5 border-2 border-black transition-all duration-300 hover:scale-125 cursor-pointer shadow-[2px_2px_0px_#000] active:translate-y-0.5 active:translate-x-0.5 active:shadow-none ${
-                isActive ? 'scale-125 shadow-[4px_4px_0px_#000]' : 'bg-white'
+              className={`w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 border-[1.5px] sm:border-2 border-black transition-all duration-300 hover:scale-125 cursor-pointer shadow-[1px_1px_0px_#000] sm:shadow-[2px_2px_0px_#000] active:translate-y-0.5 active:translate-x-0.5 active:shadow-none ${
+                isActive ? 'scale-125 shadow-[2px_2px_0px_#000] sm:shadow-[4px_4px_0px_#000]' : 'bg-white'
               }`}
               style={{ backgroundColor: isActive ? section.color : undefined }}
               title={section.label}
