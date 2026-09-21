@@ -5,6 +5,7 @@ import GameDescriptionSection from './GameDescriptionSection'
 import { CharactersSection } from '../characters/CharactersSection'
 import { GallerySection } from '../gallery/GallerySection'
 import { RedBookSection } from '../synopsis/RedBookSection'
+import { BuyNowSection } from '../buy/BuyNowSection'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -547,6 +548,13 @@ export default function ScrollExperience({ onEnterTown }) {
         {/* ========================================================================= */}
         <div id="synopsis">
           <RedBookSection />
+        </div>
+
+        {/* ========================================================================= */}
+        {/* BUY NOW SECTION                                                           */}
+        {/* ========================================================================= */}
+        <div id="buy">
+          <BuyNowSection />
         </div>
       </div>
     </div>
