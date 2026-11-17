@@ -68,125 +68,107 @@ export default function GameDescriptionSection({ onScrollToTop }) {
           </div>
 
           {/* ======================================================================= */}
-          {/* PIXEL RPG DIALOGUE BOX (CONTAINER CERITA DENGAN ATMA & RAYA SPRITES)      */}
+          {/* HYBRID MODERN-RETRO CONTAINER DENGAN SPLIT LAYOUT                         */}
           {/* ======================================================================= */}
-          <div className="about-anim-dialogue relative mt-2 w-full max-w-5xl border-[3px] border-black bg-white p-5 shadow-[6px_6px_0px_#000000] sm:p-7">
-            {/* 4 Pojok Stepped Pixel Brackets */}
-            <div className="absolute -top-1.5 -left-1.5 h-4 w-4 bg-[#bde200] border-2 border-black z-30" />
-            <div className="absolute -top-1.5 -right-1.5 h-4 w-4 bg-[#0c71c3] border-2 border-black z-30" />
-            <div className="absolute -bottom-1.5 -left-1.5 h-4 w-4 bg-[#0c71c3] border-2 border-black z-30" />
-            <div className="absolute -bottom-1.5 -right-1.5 h-4 w-4 bg-[#bde200] border-2 border-black z-30" />
+          <div className="about-anim-dialogue relative mt-4 w-full max-w-6xl rounded-2xl bg-white/95 p-6 shadow-[0_8px_30px_rgb(0,0,0,0.08)] backdrop-blur-md border border-gray-100 sm:p-10 transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)]">
+            
+            {/* Retro Pixel Accents (Subtle Corners) */}
+            <div className="absolute -top-1.5 -left-1.5 h-3 w-3 bg-[#bde200] border-2 border-black z-30 opacity-80" />
+            <div className="absolute -top-1.5 -right-1.5 h-3 w-3 bg-[#0c71c3] border-2 border-black z-30 opacity-80" />
+            <div className="absolute -bottom-1.5 -left-1.5 h-3 w-3 bg-[#0c71c3] border-2 border-black z-30 opacity-80" />
+            <div className="absolute -bottom-1.5 -right-1.5 h-3 w-3 bg-[#bde200] border-2 border-black z-30 opacity-80" />
 
-            {/* Window Header Bar (90s Retro RPG Window Motif) */}
-            <div className="mb-5 flex flex-wrap items-center justify-between border-b-2 border-black pb-2.5">
+            {/* Window Header Bar (Refined Retro Motif) */}
+            <div className="mb-8 flex flex-wrap items-center justify-between border-b border-gray-200 pb-3">
               <div className="flex items-center gap-2">
-                <span className="h-3 w-3 bg-[#bde200] border border-black" />
-                <span className="font-['Press_Start_2P',monospace] text-[9px] text-black sm:text-[10px]">
-                  [ DIALOGUE LOG // LOKA TOWN 199X ]
+                <span className="h-2.5 w-2.5 bg-[#0c71c3]" />
+                <span className="font-['Press_Start_2P',monospace] text-[8px] text-gray-500 sm:text-[9px] tracking-widest uppercase">
+                  Log Data // Loka Town 199X
                 </span>
               </div>
-              <div className="flex items-center gap-1.5 font-['Press_Start_2P',monospace] text-[8px] text-stone-500">
-                <span className="border border-black bg-stone-100 px-1 py-0.5 text-black">_</span>
-                <span className="border border-black bg-stone-100 px-1 py-0.5 text-black">□</span>
-                <span className="border border-black bg-[#0c71c3] px-1 py-0.5 text-white">✕</span>
+              <div className="flex items-center gap-1.5 font-['Press_Start_2P',monospace] text-[7px] text-gray-300">
+                <span className="border border-gray-200 bg-gray-50 px-1 py-0.5 text-gray-400">_</span>
+                <span className="border border-gray-200 bg-gray-50 px-1 py-0.5 text-gray-400">□</span>
+                <span className="border border-gray-200 bg-red-500/10 px-1 py-0.5 text-red-400">✕</span>
               </div>
             </div>
 
-            {/* Konten Utama: Atma (Kiri) - Teks Cerita (Tengah) - Raya (Kanan) */}
-            <div className="grid grid-cols-1 items-center gap-6 lg:grid-cols-12">
-              {/* Kolom Kiri: Atma Pixel Sprite */}
-              <div className="hidden flex-col items-center lg:col-span-2 lg:flex">
-                <div className="relative flex h-40 w-24 items-end justify-center rounded border-2 border-black bg-[#0c71c3]/10 p-2 shadow-[3px_3px_0px_#000000]">
-                  <img
-                    src={atmaPixelSprite}
-                    alt="Atma Pixel Sprite"
-                    className="pixel-art pixel-idle-bob h-32 w-auto object-contain select-none filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]"
-                  />
-                </div>
-                <span className="mt-2 border-2 border-black bg-[#0c71c3] px-2 py-0.5 font-['Press_Start_2P',monospace] text-[8px] text-white shadow-[2px_2px_0px_#000000]">
-                  ATMA
-                </span>
-              </div>
-
-              {/* Kolom Tengah: 3 Paragraf Cerita Resmi Sesuai Permintaan */}
-              <div className="space-y-4 text-center lg:col-span-8 lg:text-left">
-                {/* Mobile Sprite Bar (Hanya tampil di layar kecil/ponsel) */}
-                <div className="mb-4 flex items-center justify-center gap-4 lg:hidden">
-                  <div className="flex flex-col items-center">
-                    <div className="flex h-24 w-16 items-end justify-center border-2 border-black bg-[#0c71c3]/10 p-1 shadow-[2px_2px_0px_#000]">
-                      <img
-                        src={atmaPixelSprite}
-                        alt="Atma"
-                        className="pixel-art pixel-idle-bob h-20 w-auto object-contain"
-                      />
-                    </div>
-                    <span className="mt-1 border border-black bg-[#0c71c3] px-1.5 py-0.5 font-['Press_Start_2P',monospace] text-[7px] text-white">
-                      ATMA
-                    </span>
-                  </div>
-
-                  <span className="font-['Press_Start_2P',monospace] text-xs text-[#0c71c3]">✦ & ✦</span>
-
-                  <div className="flex flex-col items-center">
-                    <div className="flex h-24 w-16 items-end justify-center border-2 border-black bg-[#bde200]/20 p-1 shadow-[2px_2px_0px_#000]">
-                      <img
-                        src={rayaPixelSprite}
-                        alt="Raya"
-                        className="pixel-art pixel-idle-bob h-20 w-auto object-contain"
-                      />
-                    </div>
-                    <span className="mt-1 border border-black bg-[#bde200] px-1.5 py-0.5 font-['Press_Start_2P',monospace] text-[7px] text-black">
-                      RAYA
-                    </span>
-                  </div>
-                </div>
-
-                {/* Paragraf 1 */}
-                <p className="font-serif text-sm leading-relaxed text-stone-900 sm:text-base md:text-lg">
-                  <strong className="text-[#0c71c3]">A Space For The Unbound</strong> is a slice-of-life adventure game that tells a story about overcoming anxiety, depression, and the relationship between a boy and a girl with supernatural powers.
+            {/* Main Content: Split Layout */}
+            <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-12 lg:gap-12">
+              
+              {/* Kolom Kiri: Teks & Tipografi (Clean & Spacious) */}
+              <div className="flex flex-col space-y-6 text-left lg:col-span-7">
+                
+                {/* Paragraf 1 (Lead) */}
+                <p className="font-sans text-lg font-medium leading-relaxed text-gray-800 sm:text-xl md:text-2xl">
+                  <span className="font-bold text-[#0c71c3]">A Space For The Unbound</span> is a slice-of-life adventure game that tells a story about overcoming anxiety, depression, and the relationship between a boy and a girl with supernatural powers.
                 </p>
 
                 {/* Paragraf 2 */}
-                <p className="font-serif text-sm leading-relaxed text-stone-800 sm:text-base">
+                <p className="font-sans text-base leading-relaxed text-gray-600 sm:text-lg">
                   Follow two high school sweethearts,{' '}
-                  <strong className="font-semibold text-black underline decoration-[#bde200] decoration-2">
+                  <span className="font-semibold text-black relative inline-block">
                     Atma
-                  </strong>{' '}
+                    <span className="absolute bottom-1 left-0 h-1.5 w-full bg-[#bde200]/40 -z-10 skew-x-[-15deg]"></span>
+                  </span>{' '}
                   and{' '}
-                  <strong className="font-semibold text-black underline decoration-[#0c71c3] decoration-2">
+                  <span className="font-semibold text-black relative inline-block">
                     Raya
-                  </strong>
+                    <span className="absolute bottom-1 left-0 h-1.5 w-full bg-[#0c71c3]/30 -z-10 skew-x-[-15deg]"></span>
+                  </span>
                   , on a journey of self-discovery at the end of their high school years. When a mysteriously supernatural power is suddenly unleashed threatening their existence, they must explore and investigate their town to uncover hidden secrets, face the end of the world, and perhaps learn more about each other.
                 </p>
 
                 {/* Paragraf 3 */}
-                <p className="font-serif text-xs leading-relaxed italic text-stone-600 sm:text-sm">
+                <p className="font-sans text-sm font-light leading-relaxed italic text-gray-500 sm:text-base border-l-4 border-gray-200 pl-4">
                   Set in a small town inspired by 90s era rural Indonesia, A Space for The Unbound presents an endearing story-driven experience with a vibrant environment waiting to be explored.
                 </p>
 
-                {/* Blinking Dialogue Prompt Footer */}
-                <div className="pt-2 flex items-center justify-between border-t border-black/15 text-[9px] font-['Press_Start_2P',monospace]">
-                  <span className="text-stone-500">INDONESIA 199X</span>
-                  <div className="flex items-center gap-1.5 text-[#0c71c3]">
-                    <span className="hidden sm:inline">EXPLORE GALLERY</span>
-                    <span className="pixel-blink text-base font-bold text-[#bde200]">▼</span>
-                  </div>
+                {/* Action Prompt */}
+                <div className="pt-4 flex items-center gap-3 text-[9px] font-['Press_Start_2P',monospace]">
+                  <span className="bg-[#bde200] px-2 py-1 text-black font-bold border border-black/10">EXPLORE STORY</span>
+                  <span className="text-gray-400">INDONESIA 199X</span>
                 </div>
               </div>
 
-              {/* Kolom Kanan: Raya Pixel Sprite */}
-              <div className="hidden flex-col items-center lg:col-span-2 lg:flex">
-                <div className="relative flex h-40 w-24 items-end justify-center rounded border-2 border-black bg-[#bde200]/20 p-2 shadow-[3px_3px_0px_#000000]">
-                  <img
-                    src={rayaPixelSprite}
-                    alt="Raya Pixel Sprite"
-                    className="pixel-art pixel-idle-bob h-32 w-auto object-contain select-none filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]"
-                  />
+              {/* Kolom Kanan: Karakter (Dinamis & Overlapping) */}
+              <div className="relative flex h-64 items-center justify-center lg:col-span-5 lg:h-80">
+                {/* Background dekoratif yang membantah bentuk kotak */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                   <div className="h-40 w-40 rounded-full bg-[#0c71c3]/5 blur-2xl lg:h-64 lg:w-64"></div>
+                   <div className="absolute h-32 w-32 translate-x-12 translate-y-12 rounded-full bg-[#bde200]/10 blur-2xl lg:h-48 lg:w-48"></div>
                 </div>
-                <span className="mt-2 border-2 border-black bg-[#bde200] px-2 py-0.5 font-['Press_Start_2P',monospace] text-[8px] text-black shadow-[2px_2px_0px_#000000]">
-                  RAYA
-                </span>
+
+                {/* Atma Sprite */}
+                <div className="absolute left-[10%] bottom-[10%] z-10 flex flex-col items-center hover:scale-105 transition-transform duration-500">
+                  <div className="relative mb-2 h-40 w-auto lg:h-52 drop-shadow-[0_10px_15px_rgba(0,0,0,0.15)]">
+                    <img
+                      src={atmaPixelSprite}
+                      alt="Atma"
+                      className="pixel-art pixel-idle-bob h-full w-full object-contain filter"
+                    />
+                  </div>
+                  <span className="rounded bg-[#0c71c3] px-2 py-1 font-sans text-xs font-bold tracking-wider text-white shadow-sm">
+                    ATMA
+                  </span>
+                </div>
+
+                {/* Raya Sprite */}
+                <div className="absolute right-[10%] bottom-[20%] z-20 flex flex-col items-center hover:scale-105 transition-transform duration-500">
+                  <div className="relative mb-2 h-40 w-auto lg:h-52 drop-shadow-[0_10px_15px_rgba(0,0,0,0.2)]">
+                    <img
+                      src={rayaPixelSprite}
+                      alt="Raya"
+                      className="pixel-art pixel-idle-bob h-full w-full object-contain filter"
+                      style={{ animationDelay: '0.5s' }}
+                    />
+                  </div>
+                  <span className="rounded bg-[#bde200] px-2 py-1 font-sans text-xs font-bold tracking-wider text-black shadow-sm">
+                    RAYA
+                  </span>
+                </div>
               </div>
+
             </div>
           </div>
 
